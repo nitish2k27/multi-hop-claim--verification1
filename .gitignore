@@ -1,0 +1,134 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test outputs
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Cache directories
+**/__pycache__/
+
+# ============================================
+# EXCLUDE ALL LARGE FILES (>5MB)
+# ============================================
+
+# Model directories (contains large .safetensors files ~400MB each)
+models/claim_detector/final/
+models/stance_detector/final/
+models/ner_model/final/
+models/llm_finetuned/final/
+
+# Keep only README files in model directories
+!models/*/README.md
+!models/README.md
+
+# Data directories (contains large CSV/JSON files)
+data/raw/
+data/processed/
+data/chroma_db/
+
+# Keep only README files in data directories  
+!data/README.md
+!data/*/README.md
+
+# Test model files (125MB FastText model)
+tests/models/language_detection/*.bin
+
+# Keep README in test models
+!tests/models/*/README.md
+
+# Large file extensions
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+*.h5
+*.pkl
+*.pickle
+
+# Large data files
+*.csv
+*.jsonl
+*.json
+*.sqlite3
+*.db
+*.parquet
+
+# Archive files
+*.zip
+*.tar.gz
+*.7z
+*.rar
+
+# Media files
+*.mp4
+*.avi
+*.mov
+*.wav
+*.mp3
+*.flac
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.tiff
+*.bmp
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Large text files
+*.txt
+!requirements.txt
+!*.md

@@ -1,0 +1,139 @@
+# Regional Indian Language Scraper Configuration
+# Based on Gemini's recommendations for vernacular portals
+
+scraper_settings:
+  delay_between_requests: 3  # seconds
+  delay_between_batches: 15  # seconds
+  articles_per_source: 40
+  batch_size: 3
+  min_article_length: 300  # characters
+  
+# Target URL patterns for drama and politics content
+target_patterns:
+  politics:
+    - "/politics/"
+    - "/rajkiya/"
+    - "/election/"
+    - "/chunav/"
+    - "/assembly/"
+    - "/vidhan-sabha/"
+    - "/chief-minister/"
+    - "/mukhyamantri/"
+    - "/coalition/"
+    - "/gathbandhan/"
+  
+  culture_drama:
+    - "/entertainment/"
+    - "/cinema/"
+    - "/controversy/"
+    - "/vivad/"
+    - "/culture/"
+    - "/sanskriti/"
+    - "/festival/"
+    - "/tyohar/"
+  
+  opinion_claims:
+    - "/opinion/"
+    - "/sampadkiya/"
+    - "/editorial/"
+    - "/analysis/"
+  
+  social_issues:
+    - "/caste/"
+    - "/jati/"
+    - "/temple/"
+    - "/mandir/"
+    - "/language/"
+    - "/bhasha/"
+    - "/religion/"
+    - "/dharma/"
+
+# Language priorities (for OneIndia multi-language scraping)
+language_priorities:
+  high_priority:
+    - "hi"  # Hindi
+    - "ta"  # Tamil
+    - "te"  # Telugu
+    - "mr"  # Marathi
+    - "bn"  # Bengali
+  
+  medium_priority:
+    - "ml"  # Malayalam
+    - "kn"  # Kannada
+    - "gu"  # Gujarati
+  
+  low_priority:
+    - "pa"  # Punjabi
+    - "or"  # Odia
+
+# Regional focus areas (for targeted scraping)
+regional_focus:
+  north_india:
+    states: ["UP", "Bihar", "Rajasthan", "Haryana", "Punjab", "Delhi"]
+    key_topics: ["farmer_protests", "caste_politics", "election_drama"]
+  
+  south_india:
+    states: ["Tamil Nadu", "Andhra Pradesh", "Telangana", "Karnataka", "Kerala"]
+    key_topics: ["cinema_politics", "language_activism", "temple_controversies"]
+  
+  west_india:
+    states: ["Maharashtra", "Gujarat", "Goa"]
+    key_topics: ["coalition_politics", "business_politics", "cultural_festivals"]
+  
+  east_india:
+    states: ["West Bengal", "Odisha", "Jharkhand"]
+    key_topics: ["intellectual_debates", "tribal_issues", "political_violence"]
+
+# Content quality filters
+quality_filters:
+  exclude_keywords:
+    - "advertisement"
+    - "sponsored"
+    - "प्रायोजित"  # Hindi: sponsored
+    - "விளம்பரம்"  # Tamil: advertisement
+    - "వ్యాపార ప్రకటన"  # Telugu: business advertisement
+  
+  required_elements:
+    - "title"
+    - "content"
+    - "publish_date"
+  
+  content_indicators:
+    high_drama:
+      - "controversy"
+      - "विवाद"  # Hindi: controversy
+      - "சர்ச்சை"  # Tamil: controversy
+      - "వివాదం"  # Telugu: controversy
+    
+    political_heat:
+      - "allegation"
+      - "आरोप"  # Hindi: allegation
+      - "குற்றச்சாட்டு"  # Tamil: allegation
+      - "ఆరోపణ"  # Telugu: allegation
+    
+    cultural_claims:
+      - "tradition"
+      - "परंपरा"  # Hindi: tradition
+      - "பாரம்பரியம்"  # Tamil: tradition
+      - "సంప్రదాయం"  # Telugu: tradition
+
+# Output configuration
+output:
+  csv_path: "data/raw/news_articles.csv"
+  backup_path: "data/raw/regional_backup.csv"
+  
+  additional_fields:
+    - "region"
+    - "content_type"
+    - "drama_score"  # Future: ML-based drama scoring
+    - "political_intensity"  # Future: Political content intensity
+
+# RSS feed validation
+feed_validation:
+  timeout_seconds: 30
+  retry_attempts: 3
+  validate_encoding: true
+  
+  fallback_sources:
+    - "oneindia"  # Multi-language fallback
+    - "news18"    # English fallback for regional content

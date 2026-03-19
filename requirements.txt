@@ -1,0 +1,77 @@
+# Core ML libraries
+
+torch>=2.0.0
+transformers>=4.35.0
+sentence-transformers>=2.2.0
+datasets>=2.14.0
+accelerate>=0.24.0
+
+# Vector DB
+
+chromadb>=0.4.18
+faiss-cpu>=1.7.4
+
+# NLP tools
+
+spacy>=3.7.0
+nltk>=3.8.0
+# fasttext>=0.9.2  # Commented out - requires C++ build tools on Windows
+
+# Data collection
+
+beautifulsoup4>=4.12.0
+newspaper3k>=0.2.8
+requests>=2.31.0
+selenium>=4.15.0
+feedparser>=6.0.10
+
+# Audio processing (multimodal)
+
+openai-whisper>=20231117
+soundfile>=0.12.1
+pyaudio>=0.2.14
+
+# OCR (multimodal)
+
+easyocr>=1.7.0
+opencv-python>=4.8.1
+pytesseract>=0.3.10
+Pillow>=10.0.0
+
+# Document processing
+
+PyPDF2>=3.0.0
+pdfplumber>=0.10.0
+python-docx>=1.0.0
+openpyxl>=3.1.0
+
+# Text processing
+
+ftfy>=6.1.0
+fasttext-wheel>=0.9.2  # Pre-built binary for Windows
+# langdetect>=1.0.9  # Fallback if fasttext fails (uncomment if needed)
+python-dateutil>=2.8.0
+
+# Web framework
+
+fastapi>=0.104.0
+uvicorn>=0.24.0
+gradio>=4.7.0
+
+# Utilities
+
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+tqdm>=4.66.0
+pyyaml>=6.0.0
+python-dotenv>=1.0.0
+
+# Ranking
+
+rank-bm25>=0.2.2
+
+# Visualization
+
+plotly>=5.17.0
+networkx>=3.2.0

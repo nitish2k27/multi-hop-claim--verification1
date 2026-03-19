@@ -1,0 +1,47 @@
+# NLP Pipeline Configuration
+# Fact Verification System - All Trained Models Enabled
+
+nlp_pipeline:
+  use_trained_models: true
+  device: "cpu"
+  batch_size: 32
+  
+  models:
+    # Claim Detection - TRAINED
+    claim_detector:
+      trained_path: "models/claim_detector/final"
+      placeholder: "facebook/bart-large-mnli"
+      use_trained: true
+      threshold: 0.5
+    
+    # Named Entity Recognition - PRE-TRAINED
+    ner:
+      trained_path: "models/ner_model/final"
+      placeholder: "dslim/bert-base-NER"
+      use_trained: false
+      aggregation_strategy: "first"
+    
+    # Entity Linking - API-BASED
+    entity_linking:
+      enabled: true
+      cache_size: 1000
+      timeout: 5
+    
+    # Temporal Extraction - RULE-BASED
+    temporal_extraction:
+      enabled: true
+    
+    # Stance Detection - TRAINED
+    stance_detector:
+      trained_path: "models/stance_detector/final"
+      placeholder: "microsoft/deberta-v3-base"
+      use_trained: true
+      threshold: 0.5
+      max_length: 256
+  
+  # Processing settings
+  processing:
+    max_text_length: 5000
+    sentence_split: true
+    enable_caching: true
+    cache_dir: "cache/nlp"
