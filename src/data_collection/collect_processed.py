@@ -10,7 +10,7 @@ print("Collecting all processed datasets...")
 # ════════════════════════════════════════
 print("\n1. Processing FEVER → claim_train.csv")
 
-rows = []
+rows = [] 
 try:
     with open("data/raw/train.jsonl", "r", encoding="utf-8") as f:
         for line in f:
