@@ -203,10 +203,18 @@ class Translator:
     
     def to_english(self, text: str, source_lang: str) -> str:
         """Translate to English"""
+        # Handle unknown language
+        if source_lang == 'unknown' or not source_lang:
+            logger.warning("Source language is unknown, returning original text")
+            return text
         return self.translate(text, source_lang, 'en')
     
     def from_english(self, text: str, target_lang: str) -> str:
         """Translate from English"""
+        # Handle unknown language
+        if target_lang == 'unknown' or not target_lang:
+            logger.warning("Target language is unknown, returning original text")
+            return text
         return self.translate(text, 'en', target_lang)
 
 

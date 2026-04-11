@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fact Verification Report</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f14;--s:#13161e;--s2:#1a1e2a;--b:#252836;
+  --text:#e2e8f0;--muted:#64748b;--sub:#94a3b8;
+  --green:#34d399;--amber:#fbbf24;--red:#f87171;--blue:#6c8cff;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);
+      font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding:48px 32px 80px}
+.topbar{display:flex;align-items:center;justify-content:space-between;
+         margin-bottom:48px;padding-bottom:20px;border-bottom:1px solid var(--b)}
+.logo{font-family:var(--serif);font-size:1.3rem;color:var(--blue);font-style:italic}
+.ts{font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.06em}
+.claim-block{background:var(--s);border:1px solid var(--b);border-radius:12px;
+              padding:28px 32px;margin-bottom:28px}
+.label{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;
+        text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.claim-text{font-family:var(--serif);font-size:1.45rem;line-height:1.4;
+             color:var(--text);font-style:italic}
+.verdict-card{border-radius:12px;padding:28px 32px;margin-bottom:28px;
+               border:1px solid #34d39944;background:rgba(52,211,153,0.12)}
+.verdict-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.verdict-badge{font-family:var(--mono);font-size:1.15rem;font-weight:500;
+                color:#34d399;letter-spacing:.04em}
+.conf-wrap{flex:1;min-width:180px}
+.conf-label{font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-bottom:6px}
+.conf-bar{height:7px;background:var(--b);border-radius:4px;overflow:hidden}
+.conf-fill{height:100%;border-radius:4px;background:#34d399;width:83.4%}
+.conf-pct{font-family:var(--mono);font-size:.9rem;color:#34d399;margin-top:5px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.chart-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:24px}
+.chart-title{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;
+              text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-family:var(--mono);font-size:.72rem;color:var(--sub);width:72px}
+.bar-track{flex:1;height:8px;background:var(--b);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-pct{font-family:var(--mono);font-size:.72rem;color:var(--muted);width:34px;text-align:right}
+.sum-row{display:flex;align-items:center;justify-content:space-between;
+          padding:8px 0;border-bottom:1px solid var(--b)}
+.sum-row:last-child{border-bottom:none}
+.sum-name{font-family:var(--mono);font-size:.78rem;color:var(--sub)}
+.sum-val{font-family:var(--mono);font-size:.78rem}
+.report-body{background:var(--s);border:1px solid var(--b);border-radius:12px;
+              padding:36px 40px;margin-bottom:28px}
+.report-body h1,.report-body h2{font-family:var(--serif);color:var(--text);
+  margin-top:32px;margin-bottom:12px;line-height:1.3}
+.report-body h1{font-size:1.6rem;font-style:italic;
+  border-bottom:1px solid var(--b);padding-bottom:12px}
+.report-body h2{font-size:1.2rem}
+.report-body h3{font-size:1rem;color:var(--sub);margin-top:20px;margin-bottom:8px}
+.report-body p{margin-bottom:14px;color:var(--sub)}
+.report-body strong{color:var(--text);font-weight:600}
+.report-body ul,.report-body ol{padding-left:20px;margin-bottom:14px;color:var(--sub)}
+.report-body li{margin-bottom:6px}
+.report-body table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:.88rem}
+.report-body th{background:var(--s2);color:var(--text);padding:10px 14px;text-align:left;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.report-body td{padding:10px 14px;border-bottom:1px solid var(--b);color:var(--sub)}
+.report-body code{background:var(--s2);padding:2px 6px;border-radius:4px;
+  font-family:var(--mono);font-size:.85em;color:var(--blue)}
+.report-body blockquote{border-left:3px solid var(--blue);padding:10px 18px;
+  margin:16px 0;background:var(--s2);border-radius:0 6px 6px 0;
+  color:var(--sub);font-style:italic}
+.footer{text-align:center;padding-top:32px;border-top:1px solid var(--b)}
+.footer p{font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.06em}
+@media print{
+  body{background:#fff!important;color:#000!important}
+  .charts{display:none!important}
+  .report-body{background:#fff!important;border:none!important;padding:0!important}
+  .claim-block,.verdict-card{background:#f8f9fa!important;border:1px solid #ddd!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <span class="logo">FactCheck AI</span>
+  <span class="ts">Generated April 10, 2026 at 00:42</span>
+</div>
+
+<div class="claim-block">
+  <div class="label">Claim under verification</div>
+  <div class="claim-text">&#8220;India's GDP grew 8% in 2024&#8221;</div>
+</div>
+
+<div class="verdict-card">
+  <div class="verdict-row">
+    <div>
+      <div class="label">Verdict</div>
+      <div class="verdict-badge">TRUE</div>
+    </div>
+    <div class="conf-wrap">
+      <div class="conf-label">Confidence score</div>
+      <div class="conf-bar"><div class="conf-fill"></div></div>
+      <div class="conf-pct">83.4%</div>
+    </div>
+  </div>
+</div>
+
+<div class="charts">
+  <div class="chart-card">
+    <div class="chart-title">Evidence stance breakdown</div>
+    <div class="bar-row">
+      <span class="bar-label">Supports</span>
+      <div class="bar-track"><div class="bar-fill" style="width:80%;background:#34d399"></div></div>
+      <span class="bar-pct">80%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Refutes</span>
+      <div class="bar-track"><div class="bar-fill" style="width:0%;background:#f87171"></div></div>
+      <span class="bar-pct">0%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Neutral</span>
+      <div class="bar-track"><div class="bar-fill" style="width:20%;background:#6c8cff"></div></div>
+      <span class="bar-pct">20%</span>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Verification summary</div>
+    <div class="sum-row"><span class="sum-name">Total evidence</span>
+      <span class="sum-val" style="color:var(--blue)">5 pieces</span></div>
+    <div class="sum-row"><span class="sum-name">Supporting</span>
+      <span class="sum-val" style="color:var(--green)">4</span></div>
+    <div class="sum-row"><span class="sum-name">Refuting</span>
+      <span class="sum-val" style="color:var(--red)">0</span></div>
+    <div class="sum-row"><span class="sum-name">Neutral</span>
+      <span class="sum-val" style="color:var(--muted)">1</span></div>
+    <div class="sum-row"><span class="sum-name">Confidence</span>
+      <span class="sum-val" style="color:#34d399">83.4%</span></div>
+  </div>
+</div>
+
+<div class="report-body"><h2>Claim</h2>
+<p>The claim being verified is that India's GDP grew 8% in 2024.</p>
+<h2>Initial Assessment</h2>
+<p>This is an economic claim, specifically related to the growth rate of a country's GDP. To verify it properly, evidence would be needed from credible sources such as government statistics, economic reports, or reputable news outlets that directly address India's GDP growth in 2024.</p>
+<h2>Evidence Analysis</h2>
+<ol>
+<li><strong>Indian Express (Credibility: 0.41)</strong>: This piece supports the claim by mentioning a company's significant revenue growth in 2024, but it does not directly address GDP growth. Its relevance is indirect, and its credibility is medium to low.</li>
+<li><strong>economic_times_tech (Credibility: 0.57)</strong>: This piece supports the claim by reporting an increase in India's software exports in 2024-25, which could indicate economic growth. It is more directly relevant to the claim than the first piece and has a higher credibility score.</li>
+<li><strong>Indian Express (Credibility: 0.41)</strong>: This neutral piece discusses Apple's production increase in India but does not provide information about India's GDP growth in 2024. Its relevance to the claim is low.</li>
+<li><strong>zee_news (Credibility: 0.41)</strong>: This piece supports the claim by suggesting that despite potential deflation, India's IT sector might experience stronger demand, which could contribute to economic growth. Its relevance is indirect, and its credibility is medium to low.</li>
+<li><strong>news18 (Credibility: 0.41)</strong>: This piece supports the claim by discussing how oil prices impact India's economy, which could be related to GDP growth. However, it does not directly address the 8% GDP growth in 2024. Its relevance is indirect, and its credibility is medium to low.</li>
+</ol>
+<h2>Contradictions</h2>
+<p>No direct contradictions were found among the evidence pieces. However, it's worth noting that none of the pieces directly state that India's GDP grew 8% in 2024. They provide indirect support by discussing aspects of the Indian economy that could be related to GDP growth.</p>
+<h2>Verdict</h2>
+<p><strong>VERDICT: UNVERIFIABLE</strong><br />
+Confidence: 50%<br />
+Reasoning: While the majority of the evidence pieces support the idea of economic growth in India around 2024 through various sectors, none directly confirm an 8% GDP growth. The credibility of most pieces is medium to low, and their relevance is often indirect.</p>
+<h2>Key Findings</h2>
+<ul>
+<li>The economic_times_tech piece (Evidence 2) suggests an 11% year-over-year increase in software exports, which could indicate economic growth.</li>
+<li>The Indian Express piece (Evidence 1) mentions a company achieving significant revenue in 2024, indirectly supporting economic growth.</li>
+<li>The zee_news piece (Evidence 4) mentions potential stronger demand for India's IT sector, which could support economic growth.</li>
+<li>The news18 piece (Evidence 5) discusses factors affecting India's economy, which could be related to GDP growth.</li>
+<li>None of the evidence pieces directly address the 8% GDP growth claim.</li>
+</ul>
+<h2>Limitations</h2>
+<ul>
+<li>The evidence does not directly address the claim of 8% GDP growth in 2024.</li>
+<li>The credibility of most evidence pieces is medium to low.</li>
+<li>There is an assumption that economic growth in specific sectors (like software exports or IT) reflects overall GDP growth, which may not always be the case.</li>
+</ul>
+<h2>Conclusion</h2>
+<p>The claim that India's GDP grew 8% in 2024 cannot be verified with the provided evidence. While there are indications of economic activity and potential growth in various sectors, none of the evidence pieces directly confirm the specific GDP growth rate. Therefore, the verdict is unverifiable due to the lack of direct and credible evidence addressing the claim.</p></div>
+
+<div class="footer">
+  <p>FACTCHECK AI &nbsp;&middot;&nbsp; EVIDENCE-GROUNDED VERIFICATION &nbsp;&middot;&nbsp; APRIL 10, 2026 AT 00:42</p>
+</div>
+
+</div>
+</body>
+</html>

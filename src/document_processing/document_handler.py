@@ -259,9 +259,9 @@ class DocumentHandler:
             }
             
             # Add to vector DB
-            vector_db.add_texts(
+            vector_db.add_documents(
                 collection_name=collection_name,
-                texts=[chunk['text']],
+                documents=[chunk['text']],
                 metadatas=[chunk_metadata],
                 ids=[f"{metadata['file_hash']}_{chunk['chunk_id']}"]
             )

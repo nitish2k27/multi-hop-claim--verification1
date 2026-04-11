@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VerifAI — Fact Verification System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & base ─────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #FAFAF8;
+    --surface:   #FFFFFF;
+    --surface2:  #F4F3F0;
+    --border:    #E8E6E1;
+    --border2:   #D4D1CB;
+    --text:      #1A1917;
+    --text2:     #6B6860;
+    --text3:     #9E9B94;
+    --accent:    #3D3BF3;
+    --accent-l:  #EEEEFF;
+    --accent-d:  #2A28C8;
+    --green:     #1A7F5A;
+    --green-l:   #E6F5EE;
+    --red:       #C53030;
+    --red-l:     #FEF0F0;
+    --amber:     #92510D;
+    --amber-l:   #FEF3E0;
+    --radius:    12px;
+    --radius-sm: 8px;
+    --shadow:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ────────────────────────────────────────────────── */
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: 56px 1fr;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Header ────────────────────────────────────────────────── */
+  .header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    gap: 12px;
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .header-spacer { flex: 1; }
+  .model-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text2);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .model-badge:hover { border-color: var(--border2); background: var(--surface2); }
+  .model-badge.active-groq .model-dot { background: var(--accent); }
+  .model-badge.active-colab .model-dot { background: var(--green); }
+  .model-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text3);
+    transition: background 0.2s;
+  }
+  .ngrok-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ngrok-input {
+    width: 220px;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .ngrok-input:focus { border-color: var(--accent); }
+  .ngrok-input::placeholder { color: var(--text3); }
+  .ngrok-label {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  /* ── Sidebar ───────────────────────────────────────────────── */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    overflow-y: auto;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+  }
+  .sidebar-title {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    text-transform: uppercase;
+    padding: 0 4px;
+    margin-bottom: 8px;
+  }
+
+  /* Model toggle */
+  .toggle-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .toggle-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.12s;
+    border: 1px solid transparent;
+  }
+  .toggle-opt:hover { background: var(--surface2); }
+  .toggle-opt.selected {
+    background: var(--accent-l);
+    border-color: rgba(61,59,243,0.15);
+  }
+  .toggle-opt input[type=radio] { display: none; }
+  .radio-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+  }
+  .toggle-opt.selected .radio-dot {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .toggle-opt.selected .radio-dot::after {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: white;
+  }
+  .toggle-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .toggle-sublabel {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    margin-top: 1px;
+  }
+
+  /* Sidebar history */
+  .history-item {
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.12s;
+    margin-bottom: 2px;
+  }
+  .history-item:hover { background: var(--surface2); }
+  .history-claim {
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .history-meta {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .history-verdict {
+    font-size: 9px;
+    font-weight: 500;
+    padding: 1px 5px;
+    border-radius: 100px;
+  }
+  .hv-true { background: var(--green-l); color: var(--green); }
+  .hv-false { background: var(--red-l); color: var(--red); }
+  .hv-unver { background: var(--amber-l); color: var(--amber); }
+
+  .sidebar-spacer { flex: 1; }
+  .sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+  }
+  .sidebar-footer span { color: var(--accent); }
+
+  /* ── Main content ──────────────────────────────────────────── */
+  .main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+    min-height: 0;
+  }
+
+  /* ── Output area ───────────────────────────────────────────── */
+  .output-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+  }
+
+  /* Empty state — sits outside outputArea, above it */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    padding: 40px;
+    min-height: 0;
+  }
+  .empty-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: var(--shadow);
+  }
+  .empty-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .empty-sub {
+    font-size: 13px;
+    color: var(--text3);
+    max-width: 320px;
+    line-height: 1.7;
+  }
+  .suggestion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+    max-width: 440px;
+    width: 100%;
+  }
+  .suggestion-card {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text2);
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    text-align: left;
+    line-height: 1.5;
+    box-shadow: var(--shadow);
+  }
+  .suggestion-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-l);
+    color: var(--accent-d);
+  }
+
+  /* ── Thinking / Pipeline steps ─────────────────────────────── */
+  .pipeline-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    animation: fadeSlideIn 0.3s ease;
+  }
+  .pipeline-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pipeline-spinner {
+    width: 14px; height: 14px;
+    border: 1.5px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  .pipeline-spinner.done {
+    border-color: var(--green);
+    border-top-color: var(--green);
+    animation: none;
+    background: var(--green-l);
+    position: relative;
+  }
+  .pipeline-spinner.done::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--green);
+    line-height: 1;
+    text-align: center;
+    padding-top: 2px;
+  }
+  .pipeline-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .pipeline-elapsed {
+    margin-left: auto;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+  }
+
+  .step-list {
+    padding: 12px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    position: relative;
+    animation: fadeSlideIn 0.25s ease;
+  }
+  .step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 24px;
+    width: 1px;
+    height: calc(100% - 8px);
+    background: var(--border);
+  }
+  .step-dot {
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border2);
+    background: var(--surface);
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.2s;
+  }
+  .step-item.active .step-dot {
+    border-color: var(--accent);
+    background: var(--accent-l);
+    box-shadow: 0 0 0 3px rgba(61,59,243,0.12);
+  }
+  .step-item.active .step-dot::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulseDot 1s ease-in-out infinite;
+  }
+  .step-item.done .step-dot {
+    border-color: var(--green);
+    background: var(--green-l);
+  }
+  .step-item.done .step-dot::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .step-item.error .step-dot {
+    border-color: var(--red);
+    background: var(--red-l);
+  }
+  .step-content { flex: 1; }
+  .step-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .step-name .step-tag {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    padding: 1px 6px;
+    border-radius: 100px;
+    background: var(--surface2);
+    color: var(--text3);
+    font-weight: 400;
+  }
+  .step-detail {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    margin-top: 2px;
+    line-height: 1.5;
+  }
+
+  /* ── NLP output card ───────────────────────────────────────── */
+  .nlp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    animation: fadeSlideIn 0.3s ease;
+  }
+  .nlp-card-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nlp-card-title {
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--text2);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .collapse-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color 0.15s;
+  }
+  .collapse-btn:hover { color: var(--text2); }
+  .nlp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+  .nlp-cell {
+    background: var(--surface);
+    padding: 14px 18px;
+  }
+  .nlp-cell-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .nlp-cell-value {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .nlp-cell-value.mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .conf-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .conf-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+    transition: width 0.6s ease;
+  }
+  .entity-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .entity-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: 'DM Mono', monospace;
+  }
+  .entity-tag.PER { background: #EFF0FE; border-color: #C5C7FB; color: #3D3BF3; }
+  .entity-tag.LOC { background: #E6F5EE; border-color: #A7DFC0; color: #1A7F5A; }
+  .entity-tag.ORG { background: #FEF3E0; border-color: #F4CA7B; color: #92510D; }
+  .entity-tag.MISC { background: var(--surface2); border-color: var(--border2); color: var(--text2); }
+  .entity-tag.DATE { background: #E8F4FD; border-color: #A8D4F0; color: #1A6B9E; }
+  .entity-tag.TIME { background: #F3E8FD; border-color: #D4A8F0; color: #6B1A9E; }
+
+  /* ── Evidence / RAG section ────────────────────────────────── */
+  .evidence-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    animation: fadeSlideIn 0.3s ease;
+  }
+  .evidence-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .evidence-title {
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--text2);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .evidence-count {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 8px;
+    background: var(--surface2);
+    border-radius: 100px;
+    color: var(--text3);
+  }
+  .evidence-item {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+  .evidence-item:last-child { border-bottom: none; }
+  .evidence-item:hover { background: var(--surface2); }
+  .evidence-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .stance-badge {
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 100px;
+    letter-spacing: 0.03em;
+  }
+  .stance-SUPPORTS { background: var(--green-l); color: var(--green); }
+  .stance-REFUTES { background: var(--red-l); color: var(--red); }
+  .stance-NEUTRAL { background: var(--surface2); color: var(--text3); }
+  .evidence-source {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+  }
+  .cred-score {
+    margin-left: auto;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+  }
+  .evidence-text {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Report card ───────────────────────────────────────────── */
+  .report-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    animation: fadeSlideIn 0.3s ease;
+  }
+  .report-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .verdict-badge {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+  .verdict-TRUE { background: var(--green-l); color: var(--green); }
+  .verdict-MOSTLY-TRUE { background: #E6F5EE; color: #1A7F5A; }
+  .verdict-FALSE { background: var(--red-l); color: var(--red); }
+  .verdict-MOSTLY-FALSE { background: var(--red-l); color: var(--red); }
+  .verdict-UNVERIFIABLE { background: var(--amber-l); color: var(--amber); }
+  .verdict-MIXED { background: var(--amber-l); color: var(--amber); }
+  .report-conf {
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+  }
+  .report-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+  }
+  .btn-download {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .btn-download:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-l);
+  }
+  .btn-download svg { width: 13px; height: 13px; }
+  .report-body {
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text);
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  .report-body h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    margin: 20px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .report-body h2:first-child { margin-top: 0; }
+  .report-body p { margin-bottom: 10px; color: var(--text2); }
+  .report-body ul { padding-left: 20px; margin-bottom: 10px; }
+  .report-body li { margin-bottom: 4px; color: var(--text2); font-size: 13px; }
+  .report-body strong { color: var(--text); font-weight: 600; }
+  .report-gen-label {
+    padding: 10px 24px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .gen-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ── Input bar ─────────────────────────────────────────────── */
+  .input-area {
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .input-box {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--bg);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    overflow: hidden;
+  }
+  .input-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(61,59,243,0.08);
+  }
+  .input-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 14px 0;
+    display: none;
+  }
+  .input-attachments.has-files { display: flex; }
+  .attach-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: var(--accent-l);
+    border: 1px solid rgba(61,59,243,0.2);
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent-d);
+  }
+  .attach-chip-remove {
+    cursor: pointer;
+    color: var(--accent);
+    font-size: 13px;
+    line-height: 1;
+  }
+  .input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .claim-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    resize: none;
+    max-height: 140px;
+    min-height: 24px;
+    line-height: 1.6;
+    padding: 2px 0;
+  }
+  .claim-input::placeholder { color: var(--text3); }
+  .input-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .icon-btn {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text3);
+    transition: background 0.12s, color 0.12s;
+    position: relative;
+  }
+  .icon-btn:hover { background: var(--surface2); color: var(--text2); }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .icon-btn.recording {
+    color: var(--red);
+    background: var(--red-l);
+    animation: recordPulse 1.2s ease-in-out infinite;
+  }
+  .icon-btn.has-file { color: var(--accent); }
+
+  .send-btn {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { background: var(--accent-d); }
+  .send-btn:active { transform: scale(0.95); }
+  .send-btn:disabled {
+    background: var(--border2);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .send-btn svg { width: 16px; height: 16px; }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--text3);
+    text-align: center;
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Recording indicator */
+  .record-indicator {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--red-l);
+    border-bottom: 1px solid rgba(197,48,48,0.15);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--red);
+  }
+  .record-indicator.active { display: flex; }
+  .record-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--red);
+    animation: recordPulse 1s ease-in-out infinite;
+  }
+  .record-timer { margin-left: auto; font-size: 12px; }
+
+  /* File input hidden */
+  #fileInput { display: none; }
+
+  /* ── Animations ─────────────────────────────────────────────── */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.7); }
+  }
+  @keyframes recordPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 4px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* Error toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
+    animation: fadeSlideIn 0.25s ease;
+    max-width: 320px;
+  }
+  .toast.error { border-left: 3px solid var(--red); }
+  .toast.success { border-left: 3px solid var(--green); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      VerifAI
+    </div>
+    <div class="header-spacer"></div>
+    <div class="ngrok-area">
+      <span class="ngrok-label">Colab server:</span>
+      <input type="text" class="ngrok-input" id="ngrokUrl" placeholder="https://xxxx.ngrok.io" oninput="saveNgrok(this.value)">
+    </div>
+    <div id="modelBadge" class="model-badge active-groq" onclick="cycleBadge()">
+      <div class="model-dot"></div>
+      <span id="badgeLabel">groq · llama-3.3-70b</span>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Generation model</div>
+      <div class="toggle-group">
+        <label class="toggle-opt selected" id="opt-groq">
+          <input type="radio" name="model" value="groq" checked onchange="setModel('groq')">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="toggle-label">Groq API</div>
+            <div class="toggle-sublabel">llama-3.3-70b-versatile</div>
+          </div>
+        </label>
+        <label class="toggle-opt" id="opt-colab">
+          <input type="radio" name="model" value="colab" onchange="setModel('colab')">
+          <div class="radio-dot"></div>
+          <div>
+            <div class="toggle-label">Custom adapter</div>
+            <div class="toggle-sublabel">Mistral-7B + LoRA · Colab</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Recent claims</div>
+      <div id="historyList">
+        <div style="font-size:12px;color:var(--text3);padding:4px">No history yet</div>
+      </div>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-footer">
+      NLP · RAG · <span>Groq API</span><br>
+      All models local except generation
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">Verify any claim</div>
+        <div class="empty-sub">Enter a claim, attach a document, or use your voice. The pipeline will analyse it through NLP, RAG retrieval, and AI generation.</div>
+        <div class="suggestion-grid">
+          <div class="suggestion-card" onclick="useSuggestion('India GDP grew 8% in 2024')">India GDP grew 8% in 2024</div>
+          <div class="suggestion-card" onclick="useSuggestion('The Moon landing happened in 1969')">Moon landing was in 1969</div>
+          <div class="suggestion-card" onclick="useSuggestion('India launched a new government scheme in 2024')">New govt scheme in India 2024</div>
+          <div class="suggestion-card" onclick="useSuggestion('Electric vehicles outsold petrol cars in 2024')">EVs outsold petrol cars 2024</div>
+        </div>
+    </div>
+    <div class="output-area" id="outputArea"></div>
+
+    <!-- Input area -->
+    <div class="input-area">
+      <div class="input-box" id="inputBox">
+        <div class="record-indicator" id="recordIndicator">
+          <div class="record-dot"></div>
+          <span>Recording…</span>
+          <span class="record-timer" id="recordTimer">0:00</span>
+        </div>
+        <div class="input-attachments" id="attachmentsDisplay"></div>
+        <div class="input-row">
+          <textarea class="claim-input" id="claimInput" placeholder="Enter a claim to verify…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <div class="input-actions">
+            <button class="icon-btn" id="attachBtn" onclick="document.getElementById('fileInput').click()" title="Attach file">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </button>
+            <button class="icon-btn" id="micBtn" onclick="toggleRecording()" title="Voice input">
+              <svg id="micIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+              </svg>
+            </button>
+            <button class="send-btn" id="sendBtn" onclick="submitClaim()" title="Verify claim">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="input-hint">Enter · Send &nbsp;·&nbsp; Shift+Enter · New line &nbsp;·&nbsp; Max 2.5 min pipeline</div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".pdf,.docx,.png,.jpg,.jpeg,.mp3,.wav,.m4a" onchange="handleFileSelect(event)">
+  </main>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let currentModel   = 'groq';
+let attachedFile   = null;
+let isRecording    = false;
+let mediaRecorder  = null;
+let audioChunks    = [];
+let recordTimerInt = null;
+let recordSeconds  = 0;
+let isProcessing   = false;
+let elapsedInt     = null;
+let elapsedSecs    = 0;
+let history        = JSON.parse(localStorage.getItem('verifai_history') || '[]');
+let hasResults     = false;   // once true, emptyState never comes back
+let completedSteps = new Set(); // Track completed steps to prevent re-activation
+
+const BASE_URL = 'http://127.0.0.1:8000';
+
+const STEP_DEFS = [
+  { id:'input',       label:'Input processing',     tag:'PREPROCESSOR',  detail:'Detecting language, extracting text' },
+  { id:'translate',   label:'Translation check',    tag:'MULTILINGUAL',  detail:'Checking language for NLP pipeline' },
+  { id:'nlp',         label:'NLP analysis',         tag:'NLP LAYER',     detail:'Claim detection · NER · temporal · stance' },
+  { id:'rag',         label:'Searching evidence',   tag:'RAG RETRIEVAL', detail:'Hybrid BM25 + vector search · reranking' },
+  { id:'credibility', label:'Credibility scoring',  tag:'SCORER',        detail:'Weighting sources by tier' },
+  { id:'generation',  label:'Generating report',    tag:'GROQ API',      detail:'llama-3.3-70b · anti-hallucination prompt' },
+  { id:'export',      label:'Exporting reports',    tag:'EXPORTER',      detail:'HTML · DOCX ready to download' },
+];
+
+// ── Init ───────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('verifai_ngrok');
+  if (saved) document.getElementById('ngrokUrl').value = saved;
+  renderHistory();
+});
+
+function saveNgrok(v) { localStorage.setItem('verifai_ngrok', v); }
+
+// ── Helpers ────────────────────────────────────────────────────
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 140) + 'px';
+}
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitClaim(); }
+}
+function useSuggestion(text) {
+  const inp = document.getElementById('claimInput');
+  inp.value = text;
+  autoResize(inp);
+  inp.focus();
+}
+function formatTime(s) {
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+function truncate(str, n) {
+  if (!str) return '';
+  return str.length > n ? str.slice(0,n)+'…' : str;
+}
+function scrollBottom() {
+  const a = document.getElementById('outputArea');
+  if (a) setTimeout(() => a.scrollTo({top:a.scrollHeight, behavior:'smooth'}), 60);
+}
+function showToast(msg, type='info') {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ── Model toggle ───────────────────────────────────────────────
+function setModel(m) {
+  currentModel = m;
+  document.getElementById('opt-groq').classList.toggle('selected', m==='groq');
+  document.getElementById('opt-colab').classList.toggle('selected', m==='colab');
+  const badge = document.getElementById('modelBadge');
+  document.getElementById('badgeLabel').textContent =
+    m==='groq' ? 'groq · llama-3.3-70b' : 'mistral-7B · colab';
+  badge.className = 'model-badge ' + (m==='groq' ? 'active-groq' : 'active-colab');
+}
+function cycleBadge() {
+  document.querySelectorAll('input[name=model]').forEach(r => {
+    if (!r.checked) { r.checked = true; setModel(r.value); }
+  });
+}
+
+// ── File attach ────────────────────────────────────────────────
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  attachedFile = file;
+  const icons = {pdf:'📄',docx:'📝',doc:'📝',png:'🖼',jpg:'🖼',jpeg:'🖼',mp3:'🎙',wav:'🎙',m4a:'🎙',webm:'🎙'};
+  const ext = file.name.split('.').pop().toLowerCase();
+  const icon = icons[ext] || '📎';
+  const d = document.getElementById('attachmentsDisplay');
+  d.innerHTML = `<div class="attach-chip"><span>${icon}</span><span>${file.name}</span><span class="attach-chip-remove" onclick="removeAttachment()">×</span></div>`;
+  d.classList.add('has-files');
+  document.getElementById('attachBtn').classList.add('has-file');
+}
+function removeAttachment() {
+  attachedFile = null;
+  const d = document.getElementById('attachmentsDisplay');
+  d.innerHTML = '';
+  d.classList.remove('has-files');
+  document.getElementById('attachBtn').classList.remove('has-file');
+  document.getElementById('fileInput').value = '';
+}
+
+// ── Voice recording ────────────────────────────────────────────
+async function toggleRecording() {
+  if (isRecording) { stopRecording(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, {type:'audio/webm'});
+      attachedFile = new File([blob], 'voice_input.webm', {type:'audio/webm'});
+      const d = document.getElementById('attachmentsDisplay');
+      d.innerHTML = `<div class="attach-chip"><span>🎙</span><span>voice_input (${recordSeconds}s)</span><span class="attach-chip-remove" onclick="removeAttachment()">×</span></div>`;
+      d.classList.add('has-files');
+      stream.getTracks().forEach(t => t.stop());
+    };
+    mediaRecorder.start();
+    isRecording = true; recordSeconds = 0;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('recordIndicator').classList.add('active');
+    recordTimerInt = setInterval(() => {
+      recordSeconds++;
+      const m = Math.floor(recordSeconds/60), s = recordSeconds%60;
+      document.getElementById('recordTimer').textContent = m+':'+String(s).padStart(2,'0');
+    }, 1000);
+  } catch(err) { showToast('Microphone access denied','error'); }
+}
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  isRecording = false;
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('recordIndicator').classList.remove('active');
+  clearInterval(recordTimerInt);
+}
+
+// ── Show results area ──────────────────────────────────────────
+function showResultsArea() {
+  hasResults = true;
+  const es = document.getElementById('emptyState');
+  const oa = document.getElementById('outputArea');
+  if (es) es.style.display = 'none';
+  if (oa) oa.style.display = 'flex'; // ensure output area is always visible
+}
+
+// ── Submit ─────────────────────────────────────────────────────
+async function submitClaim() {
+  if (isProcessing) return;
+  const claim = document.getElementById('claimInput').value.trim();
+  if (!claim && !attachedFile) { showToast('Please enter a claim or attach a file','error'); return; }
+
+  const ngrokUrl = document.getElementById('ngrokUrl').value.trim();
+  if (currentModel === 'colab' && !ngrokUrl) {
+    showToast('Please enter your Colab ngrok URL first','error'); return;
+  }
+
+  isProcessing = true;
+  completedSteps.clear(); // Reset completed steps tracker
+  document.getElementById('sendBtn').disabled = true;
+  showResultsArea();
+
+  const claimText = claim || (attachedFile ? attachedFile.name : '');
+  document.getElementById('claimInput').value = '';
+  autoResize(document.getElementById('claimInput'));
+
+  elapsedSecs = 0;
+  renderPipelineCard(claimText);
+  elapsedInt = setInterval(() => {
+    elapsedSecs++;
+    const el = document.getElementById('pipelineElapsed');
+    if (el) el.textContent = formatTime(elapsedSecs);
+  }, 1000);
+
+  try {
+    // Check if real server is available
+    const health = await fetch(BASE_URL+'/health', {signal: AbortSignal.timeout(2500)}).catch(()=>null);
+
+    if (health && health.ok) {
+      // Build JSON payload
+      const payload = {claim: claimText, llm_mode: currentModel};
+      if (ngrokUrl) payload.colab_url = ngrokUrl;
+
+      // Upload file first if attached
+      if (attachedFile) {
+        try {
+          const fd = new FormData();
+          fd.append('file', attachedFile);
+          fd.append('claim', claimText);
+          const upRes = await fetch(BASE_URL+'/upload', {method:'POST', body:fd});
+          if (upRes.ok) {
+            const up = await upRes.json();
+            payload.file_path  = up.path;
+            payload.input_type = up.input_type;
+          }
+        } catch(e) { console.warn('Upload failed:', e); }
+      }
+
+      await runSSEStream(payload);
+    } else {
+      showToast('Server offline — running demo','info');
+      await runDemo(claimText);
+    }
+  } catch(err) {
+    // Pipeline error — show in card but DON'T reset the output area
+    markPipelineError(err.message);
+    showToast('Error: '+err.message, 'error');
+  } finally {
+    clearInterval(elapsedInt);
+    isProcessing = false;
+    document.getElementById('sendBtn').disabled = false;
+    removeAttachment();
+  }
+}
+
+// ── SSE stream handler ─────────────────────────────────────────
+async function runSSEStream(payload) {
+  const ctrl = new AbortController();
+  const timeoutId = setTimeout(() => ctrl.abort(), 150000); // 2.5 min
+
+  let response;
+  try {
+    response = await fetch(BASE_URL+'/verify/stream', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+      signal: ctrl.signal,
+    });
+  } catch(err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+
+  if (!response.ok) {
+    clearTimeout(timeoutId);
+    const detail = await response.json().catch(()=>({detail:response.statusText}));
+    throw new Error(detail.detail || 'Server error '+response.status);
+  }
+
+  const reader  = response.body.getReader();
+  const decoder = new TextDecoder();
+  let   buffer  = '';
+
+  try {
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break; // normal SSE end — NOT an error
+      buffer += decoder.decode(value, {stream:true});
+      
+      // FIX: Split on actual newline character
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // keep incomplete line
+      
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const data = JSON.parse(line.slice(6));
+          handleSSEEvent(data);
+        } catch(e) { 
+          console.warn('SSE parse error:', e, 'line:', line);
+        }
+      }
+    }
+    // Process any remaining buffered data
+    if (buffer.startsWith('data: ')) {
+      try { handleSSEEvent(JSON.parse(buffer.slice(6))); } catch(e) {}
+    }
+  } finally {
+    clearTimeout(timeoutId);
+    reader.releaseLock();
+  }
+}
+
+// ── SSE event handler ──────────────────────────────────────────
+function handleSSEEvent(data) {
+  console.log('SSE event:', data.type, data);
+
+  try {
+    switch(data.type) {
+      case 'step_start':
+        if (!completedSteps.has(data.step_id)) activateStep(data.step_id);
+        break;
+      case 'step_done':
+        completeStep(data.step_id, data.detail);
+        completedSteps.add(data.step_id);
+        break;
+      case 'step_error':
+        errorStep(data.step_id, data.detail);
+        break;
+      case 'nlp_result':
+        try { renderNLPCard(data.payload); } catch(e) { console.warn('NLP card render failed:', e); }
+        break;
+      case 'rag_result':
+        try { renderEvidenceCard(data.payload); } catch(e) { console.warn('Evidence card render failed:', e); }
+        break;
+      case 'report':
+        finishPipeline();
+        try {
+          renderReportCard(data.payload);
+          addToHistory(data.payload);
+        } catch(e) {
+          console.error('Report card render failed:', e);
+          // Fallback: show a minimal report so the user always gets something
+          renderFallbackReport(data.payload);
+        }
+        break;
+      case 'error':
+        markPipelineError(data.message);
+        break;
+    }
+  } catch(e) {
+    console.error('handleSSEEvent error:', e);
+  }
+}
+
+// ── Pipeline card ──────────────────────────────────────────────
+function renderPipelineCard(claimText) {
+  const area = document.getElementById('outputArea');
+  const card = document.createElement('div');
+  card.className = 'pipeline-card';
+  card.id = 'pipelineCard';
+  const stepsHtml = STEP_DEFS.map(s => `
+    <div class="step-item" id="step-${s.id}">
+      <div class="step-dot"></div>
+      <div class="step-content">
+        <div class="step-name">${s.label} <span class="step-tag">${s.tag}</span></div>
+        <div class="step-detail" id="detail-${s.id}">${s.detail}</div>
+      </div>
+    </div>`).join('');
+  card.innerHTML = `
+    <div class="pipeline-header">
+      <div class="pipeline-spinner" id="pipelineSpinner"></div>
+      <div class="pipeline-title">Analysing: <span style="color:var(--text2)">"${truncate(claimText,60)}"</span></div>
+      <div class="pipeline-elapsed" id="pipelineElapsed">0:00</div>
+    </div>
+    <div class="step-list">${stepsHtml}</div>`;
+  area.appendChild(card);
+  scrollBottom();
+  activateStep('input');
+}
+
+function activateStep(id) {
+  // FIX: Don't deactivate already-completed steps
+  document.querySelectorAll('.step-item.active').forEach(e => {
+    if (!e.classList.contains('done')) {
+      e.classList.remove('active');
+    }
+  });
+  const el = document.getElementById('step-'+id);
+  if (el && !el.classList.contains('done')) {
+    el.classList.add('active');
+    el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+}
+
+function completeStep(id, detail) {
+  const el = document.getElementById('step-'+id);
+  if (!el) return;
+  el.classList.remove('active');
+  el.classList.add('done');
+  if (detail) {
+    const d = document.getElementById('detail-'+id);
+    if (d) d.textContent = detail;
+  }
+}
+
+function errorStep(id, detail) {
+  const el = document.getElementById('step-'+id);
+  if (!el) return;
+  el.classList.remove('active');
+  el.classList.add('error');
+  if (detail) {
+    const d = document.getElementById('detail-'+id);
+    if (d) {
+      d.style.color = 'var(--red)';
+      d.textContent = detail;
+    }
+  }
+}
+
+function finishPipeline() {
+  const sp = document.getElementById('pipelineSpinner');
+  if (sp) sp.classList.add('done');
+  document.querySelectorAll('.step-item.active').forEach(e => {
+    e.classList.remove('active');
+    e.classList.add('done');
+  });
+  clearInterval(elapsedInt);
+}
+
+function markPipelineError(msg) {
+  const sp = document.getElementById('pipelineSpinner');
+  if (sp) {
+    sp.style.borderColor = 'var(--red)';
+    sp.style.borderTopColor = 'var(--red)';
+    sp.style.animation = 'none';
+  }
+  document.querySelectorAll('.step-item.active').forEach(e => {
+    e.classList.remove('active');
+    e.classList.add('error');
+  });
+  const t = document.querySelector('#pipelineCard .pipeline-title');
+  if (t) t.innerHTML = '<span style="color:var(--red)">Error — see console for details</span>';
+}
+
+// ── NLP card ───────────────────────────────────────────────────
+function renderNLPCard(nlp) {
+  const area = document.getElementById('outputArea');
+  const card = document.createElement('div');
+  card.className = 'nlp-card';
+  const uid = 'nlp'+Date.now();
+
+  const analysis = nlp.analysis || {};
+  const cd   = analysis.claim_detection || {};
+  const ents = analysis.entities || {};
+  const temp = analysis.temporal || {};
+  const conf = (cd.confidence||0)*100;
+
+  // Build entity tags
+  const byType = ents.entities || {};
+  let entHtml = '';
+  for (const [type, items] of Object.entries(byType)) {
+    if (!items || !items.length) continue;
+    items.slice(0,6).forEach(item => {
+      const text = typeof item === 'object' ? item.text : item;
+      entHtml += `<span class="entity-tag ${type}">${text} <small style="opacity:.6">${type}</small></span>`;
+    });
+  }
+  if (!entHtml) entHtml = '<span style="font-size:12px;color:var(--text3)">None detected</span>';
+
+  // Build temporal tags
+  const datesHtml = (temp.dates||[]).map(d =>
+    `<span class="entity-tag DATE">${d.text||d.expression||''} <small style="opacity:.6">${d.type||''}</small></span>`
+  ).join('');
+
+  // Build linked entities section if available
+  const linkedEnts = ents.linked_entities || [];
+  let linkedHtml = '';
+  if (linkedEnts.length > 0) {
+    linkedHtml = linkedEnts.slice(0,5).map(le =>
+      `<span class="entity-tag" style="background:#F0F9FF;border-color:#7DD3FC;color:#0369A1">
+        ${le.text} → <a href="${le.wikidata_url || '#'}" target="_blank" style="color:inherit">${le.wikidata_id || 'linked'}</a>
+      </span>`
+    ).join('');
+  }
+
+  card.innerHTML = `
+    <div class="nlp-card-header">
+      <span class="nlp-card-title">NLP layer output</span>
+      <button class="collapse-btn" onclick="toggleCollapse(this,'${uid}')">−</button>
+    </div>
+    <div id="${uid}">
+      <div class="nlp-grid">
+        <div class="nlp-cell">
+          <div class="nlp-cell-label">Claim detected</div>
+          <div class="nlp-cell-value">${cd.is_claim ? 'YES' : 'NO'}</div>
+          <div class="conf-bar"><div class="conf-fill" style="width:${conf}%;background:${conf>70?'var(--green)':conf>40?'var(--accent)':'var(--amber)'}"></div></div>
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);margin-top:4px">${conf.toFixed(1)}% confidence · ${cd.label||'—'}</div>
+        </div>
+        <div class="nlp-cell">
+          <div class="nlp-cell-label">Temporal expressions</div>
+          <div class="entity-tags">${datesHtml || '<span style="font-size:12px;color:var(--text3)">None</span>'}</div>
+        </div>
+        <div class="nlp-cell" style="grid-column:1/-1">
+          <div class="nlp-cell-label">Named entities</div>
+          <div class="entity-tags">${entHtml}</div>
+        </div>
+        ${linkedHtml ? `
+        <div class="nlp-cell" style="grid-column:1/-1">
+          <div class="nlp-cell-label">Linked to Knowledge Base</div>
+          <div class="entity-tags">${linkedHtml}</div>
+        </div>` : ''}
+      </div>
+    </div>`;
+  area.appendChild(card);
+  scrollBottom();
+}
+
+// ── Evidence + LLM Context card ────────────────────────────────
+function renderEvidenceCard(rag) {
+  const area = document.getElementById('outputArea');
+  const card = document.createElement('div');
+  card.className = 'evidence-card';
+  const uid = 'rag'+Date.now();
+  const uid2 = 'ctx'+Date.now();
+
+  const evidence = rag.evidence || [];
+  const verdict  = rag.verdict  || 'UNVERIFIABLE';
+  const conf     = rag.confidence || 0;
+  const llmCtx   = rag.llm_context || '';
+  const scores   = rag.scores || rag.aggregation || {};
+  const sup = (scores.support_percentage || 0).toFixed(1);
+  const ref = (scores.refute_percentage || 0).toFixed(1);
+
+  const evHtml = evidence.slice(0,5).map((ev, i) => {
+    const stance = ev.stance || 'NEUTRAL';
+    const source = ev.source || ev.metadata?.source || 'unknown';
+    const cred   = (ev.credibility?.total_score || 0).toFixed(2);
+    const text   = (ev.document || ev.text || '').slice(0, 260);
+    return `<div class="evidence-item">
+      <div class="evidence-meta">
+        <span class="stance-badge stance-${stance}">${stance}</span>
+        <span class="evidence-source">${source}</span>
+        <span class="cred-score">cred: ${cred}</span>
+      </div>
+      <div class="evidence-text">${text}${(ev.document || ev.text || '').length > 260 ? '…' : ''}</div>
+    </div>`;
+  }).join('');
+
+  // LLM context section — the exact string sent to Groq
+  const ctxEscaped = llmCtx.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  card.innerHTML = `
+    <div class="evidence-header">
+      <span class="evidence-title">RAG retrieval</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--green)">▲ ${sup}% support</span>
+        <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--red)">▼ ${ref}% refute</span>
+        <span class="evidence-count">${evidence.length} pieces</span>
+        <button class="collapse-btn" onclick="toggleCollapse(this,'${uid}')">−</button>
+      </div>
+    </div>
+    <div id="${uid}">
+      ${evHtml || '<div style="padding:14px 18px;font-size:13px;color:var(--text3)">No evidence found</div>'}
+    </div>
+
+    <div class="nlp-card-header" style="cursor:pointer" onclick="toggleCollapse(document.getElementById('cbtn${uid2}'),'${uid2}')">
+      <span class="nlp-card-title" style="color:var(--accent)">LLM context — full input sent to ${currentModel==='groq' ? 'Groq API' : 'Mistral'}</span>
+      <button class="collapse-btn" id="cbtn${uid2}" onclick="event.stopPropagation();toggleCollapse(this,'${uid2}')">+</button>
+    </div>
+    <div id="${uid2}" style="display:none">
+      <div style="padding:14px 18px">
+        <pre style="font-family:'DM Mono',monospace;font-size:11px;line-height:1.7;color:var(--text2);white-space:pre-wrap;word-break:break-word;background:var(--surface2);padding:14px;border-radius:8px;border:1px solid var(--border);max-height:320px;overflow-y:auto">${ctxEscaped}</pre>
+      </div>
+    </div>`;
+
+  area.appendChild(card);
+  scrollBottom();
+}
+
+// ── Report card ────────────────────────────────────────────────
+function renderReportCard(data) {
+  const area = document.getElementById('outputArea');
+  const card = document.createElement('div');
+  card.className = 'report-card';
+
+  const verdict  = (data.verdict || 'UNVERIFIABLE').replace(/ /g, '-');
+  const conf     = data.confidence || 0;
+  const report   = data.report || '';
+  const htmlPath = data.html_path;
+  const docxPath = data.docx_path;
+
+  const dlHtml = [
+    htmlPath ? `<a class="btn-download" href="${BASE_URL}/download?path=${encodeURIComponent(htmlPath)}" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>HTML</a>` : '',
+    docxPath ? `<a class="btn-download" href="${BASE_URL}/download?path=${encodeURIComponent(docxPath)}" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>DOCX</a>` : '',
+  ].filter(Boolean).join('');
+
+  // Escape backticks for the copy function
+  const safeReport = report.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+
+  card.innerHTML = `
+    <div class="report-header">
+      <span class="verdict-badge verdict-${verdict}">${data.verdict || 'UNVERIFIABLE'}</span>
+      <span class="report-conf">${conf.toFixed(1)}% confidence</span>
+      <div class="report-actions">
+        ${dlHtml}
+        <button class="btn-download" onclick="copyReport(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+    </div>
+    <div class="report-body" id="reportBody${Date.now()}">${mdToHtml(report)}</div>
+    <div class="report-gen-label">
+      <div class="gen-dot"></div>
+      Report via ${currentModel==='groq' ? 'Groq API · llama-3.3-70b-versatile' : 'Colab · Mistral-7B + LoRA adapter'}
+    </div>`;
+
+  // Store report text for copying
+  card.dataset.reportText = report;
+  area.appendChild(card);
+  // Scroll the report card itself into view after layout settles
+  requestAnimationFrame(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+// Fallback report — always shows something even if full render fails
+function renderFallbackReport(data) {
+  const area = document.getElementById('outputArea');
+  const card = document.createElement('div');
+  card.className = 'report-card';
+  const verdict = (data.verdict || 'UNVERIFIABLE').replace(/ /g,'-');
+  const conf    = (data.confidence || 0).toFixed(1);
+  const report  = data.report || '(No report text received)';
+  card.innerHTML = `
+    <div class="report-header">
+      <span class="verdict-badge verdict-${verdict}">${data.verdict || 'UNVERIFIABLE'}</span>
+      <span class="report-conf">${conf}% confidence</span>
+    </div>
+    <div class="report-body"><pre style="white-space:pre-wrap;font-family:inherit;font-size:13px">${report}</pre></div>
+    <div class="report-gen-label"><div class="gen-dot"></div>Generated by ${currentModel}</div>`;
+  card.dataset.reportText = report;
+  area.appendChild(card);
+  requestAnimationFrame(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+}
+
+// Copy report helper
+function copyReport(btn) {
+  const card = btn.closest('.report-card');
+  const text = card?.dataset?.reportText || '';
+  navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard', 'success'));
+}
+
+// ── Markdown → HTML ────────────────────────────────────────────
+function mdToHtml(md) {
+  if (!md) return '';
+  return md
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3 style="font-size:14px;font-weight:600;margin:12px 0 4px">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>(\n|$))+/g, m => '<ul>'+m+'</ul>')
+    .replace(/\n{2,}/g, '</p><p>')
+    .replace(/^([^<\n].*)$/gm, m => m.trim() && !m.startsWith('<') ? `<p>${m}</p>` : m)
+    .replace(/<p>\s*<\/p>/g, '');
+}
+
+// ── Collapse toggle ────────────────────────────────────────────
+function toggleCollapse(btn, bodyId) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  btn.textContent = hidden ? '−' : '+';
+}
+
+// ── History ────────────────────────────────────────────────────
+function addToHistory(data) {
+  history.unshift({
+    claim: data.claim || '',
+    verdict: data.verdict || 'UNVERIFIABLE',
+    conf: data.confidence || 0,
+    ts: new Date().toLocaleTimeString()
+  });
+  if (history.length > 10) history.pop();
+  localStorage.setItem('verifai_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!history.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:4px">No history yet</div>';
+    return;
+  }
+  const vc = v => (v === 'TRUE' || v === 'MOSTLY TRUE') ? 'hv-true' : (v === 'FALSE' || v === 'MOSTLY FALSE') ? 'hv-false' : 'hv-unver';
+  list.innerHTML = history.map(h => {
+    const safeClaim = h.claim.replace(/'/g, "\\'").replace(/\n/g, ' ');
+    return `
+    <div class="history-item" onclick="useSuggestion('${safeClaim}')">
+      <div class="history-claim">${truncate(h.claim, 40)}</div>
+      <div class="history-meta"><span class="history-verdict ${vc(h.verdict)}">${h.verdict}</span><span>${h.ts}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Demo mode ──────────────────────────────────────────────────
+async function runDemo(claim) {
+  const steps = ['input', 'translate', 'nlp', 'rag', 'credibility', 'generation', 'export'];
+  for (let i = 0; i < steps.length; i++) {
+    activateStep(steps[i]);
+    await new Promise(r => setTimeout(r, i < 2 ? 400 : i < 4 ? 1400 : 900));
+    completeStep(steps[i]);
+    completedSteps.add(steps[i]);
+  }
+  
+  renderNLPCard({
+    analysis: {
+      claim_detection: {is_claim: true, confidence: 0.97, label: 'FACTUAL_CLAIM'},
+      entities: {
+        entities: {ORG: ['Indian government'], MISC: ['GDP']},
+        total_entities: 2,
+        entity_types: ['ORG', 'MISC']
+      },
+      temporal: {dates: [{text: 'in 2024', type: 'year'}]}
+    }
+  });
+  
+  renderEvidenceCard({
+    verdict: 'TRUE',
+    confidence: 83.4,
+    scores: {support_percentage: 83.4, refute_percentage: 0},
+    llm_context: `=== FACT VERIFICATION CONTEXT ===
+
+CLAIM:
+  ${claim}
+
+RETRIEVED EVIDENCE:
+
+  [1] [SUPPORTS] (source: times_of_india, credibility: 0.62)
+      The Indian government launched PM Vishwakarma scheme for artisans in 2024...
+
+  [2] [SUPPORTS] (source: Indian Express, credibility: 0.71)
+      Union Budget 2024-25 introduced expanded PLI scheme incentives...
+
+EVIDENCE AGGREGATION:
+  - Preliminary verdict:  TRUE
+  - Support score:        83.4%
+  - Refute score:         0.0%
+  - Neutral score:        16.6%
+  - Evidence pieces:      5
+  - Supports:             3
+  - Refutes:              0
+
+TASK:
+Provide a detailed fact-verification analysis.
+=== END CONTEXT ===`,
+    evidence: [
+      {stance: 'SUPPORTS', source: 'times_of_india', credibility: {total_score: 0.62}, document: 'The Indian government launched PM Vishwakarma scheme for artisans in 2024, providing financial support and training for traditional craft workers across the country.'},
+      {stance: 'SUPPORTS', source: 'Indian Express', credibility: {total_score: 0.71}, document: 'Union Budget 2024-25 introduced expanded PLI scheme incentives and new welfare programmes targeting rural and urban poor populations.'}
+    ]
+  });
+  
+  renderReportCard({
+    claim,
+    verdict: 'TRUE',
+    confidence: 83.4,
+    report: `## Claim
+${claim}
+
+## Initial Assessment
+This is a verifiable factual claim about government policy. It requires evidence of at least one new scheme.
+
+## Evidence Analysis
+- **Times of India** (credibility 0.62, SUPPORTS): Reports PM Vishwakarma scheme launched in 2024 for artisans.
+- **Indian Express** (credibility 0.71, SUPPORTS): Confirms expanded PLI incentives in Union Budget 2024-25.
+
+## Verdict
+**TRUE**
+Confidence: 83.4%
+Multiple credible sources confirm scheme launches in 2024.
+
+## Conclusion
+The claim is TRUE based on available evidence.`,
+    html_path: null,
+    docx_path: null
+  });
+  
+  finishPipeline();
+}
+</script>
+</body>
+</html>
