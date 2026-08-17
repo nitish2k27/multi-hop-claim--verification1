@@ -42,8 +42,14 @@ dependencies = [
   "langdetect",
 
   # ── Ingestion ───────────────────────────────────────────────────────────
-  "feedparser",
-  "beautifulsoup4",
+  "feedparser>=6.0,<7",              # RSS/Atom parsing, ingest/discover.py
+  # Article extraction. Replaces the per-publisher BeautifulSoup selectors the
+  # v1 scrapers used: those fail silently when a site changes its template —
+  # the selector stops matching, extraction returns a nav bar, and the run
+  # records a "successful" scrape of junk. trafilatura scores DOM nodes by text
+  # density instead, so a template change degrades quality rather than
+  # producing garbage. beautifulsoup4 was dropped with the v1 scrapers.
+  "trafilatura>=2.0,<3",
   "requests",
 ]
 
