@@ -1,5 +1,3 @@
-"""RAG module for evidence retrieval"""
-
-from .retrieval import RAGPipeline
-
-__all__ = ['RAGPipeline']
+"""RAG module — correct import from rag_pipeline (has verify_claim)"""
+from .rag_pipeline import RAGPipeline
+__all__ = ["RAGPipeline"]

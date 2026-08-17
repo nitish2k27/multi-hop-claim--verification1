@@ -1,0 +1,20 @@
+{"id": "adv-01", "claim": "The moon is square in shape.", "category": "absurd", "expected": "abstained"}
+{"id": "adv-02", "claim": "Water boils at 40 degrees Celsius at sea level.", "category": "absurd", "expected": "abstained"}
+{"id": "adv-03", "claim": "The Pacific Ocean is smaller than Lake Superior.", "category": "absurd", "expected": "abstained"}
+{"id": "adv-04", "claim": "Adult humans have three hearts and two spines.", "category": "absurd", "expected": "abstained"}
+{"id": "adv-05", "claim": "The Treaty of Westphalia was signed in 1648.", "category": "absent_true", "expected": "abstained"}
+{"id": "adv-06", "claim": "Napoleon Bonaparte was born on the island of Corsica.", "category": "absent_true", "expected": "abstained"}
+{"id": "adv-07", "claim": "Insulin was first isolated at the University of Toronto in 1921.", "category": "absent_true", "expected": "abstained"}
+{"id": "adv-08", "claim": "The human genome contains roughly 20,000 protein-coding genes.", "category": "absent_true", "expected": "abstained"}
+{"id": "adv-09", "claim": "The Great Wall of China is visible from the Moon with the naked eye.", "category": "absent_false", "expected": "abstained"}
+{"id": "adv-10", "claim": "Vitamin C reliably cures the common cold within 24 hours.", "category": "absent_false", "expected": "abstained"}
+{"id": "adv-11", "claim": "Sweden adopted the euro as its official currency in 2023.", "category": "absent_false", "expected": "abstained"}
+{"id": "adv-12", "claim": "The population of Reykjavik exceeded two million people in 2024.", "category": "absent_false", "expected": "abstained"}
+{"id": "adv-13", "claim": "India's GDP contracted by 12 percent during the 2019 fiscal year.", "category": "near_miss", "expected": "abstained"}
+{"id": "adv-14", "claim": "Apple sold exactly 41 million iPhones in the first quarter of 2019.", "category": "near_miss", "expected": "abstained"}
+{"id": "adv-15", "claim": "TechCrunch was founded in 1998 by Michael Arrington.", "category": "near_miss", "expected": "abstained"}
+{"id": "adv-16", "claim": "Netflix reported 500 million paying subscribers in 2023.", "category": "near_miss", "expected": "abstained"}
+{"id": "adv-17", "claim": "OpenAI was founded in 2010 as a for-profit hardware company.", "category": "near_miss", "expected": "abstained"}
+{"id": "adv-18", "claim": "Bitcoin traded above 500,000 US dollars in March 2024.", "category": "near_miss", "expected": "abstained"}
+{"id": "adv-19", "claim": "The Guardian newspaper published its first edition in 1921.", "category": "near_miss", "expected": "abstained"}
+{"id": "adv-20", "claim": "Infosys relocated its global headquarters from Bengaluru to Chennai in 2022.", "category": "near_miss", "expected": "abstained"}
