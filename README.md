@@ -383,6 +383,15 @@ prompt instructs the model to follow the evidence text wherever the two
 disagree. In the demo run it overrides the stance model on roughly a third of
 items.
 
+### Follow one claim all the way through
+
+[**`docs/execution-trace.html`**](docs/execution-trace.html) traces a single
+claim — *"India's software exports reached 222 billion dollars in 2024-25"* —
+from the keystroke in the browser to the rendered report, naming every file,
+function and line number on the path, with the real numbers each stage
+produced: 35 candidates → 8 after reranking → 5 above the floor → 3 articles
+after parent expansion → `TRUE` at 80% confidence, one LLM call, 6.91 seconds.
+
 ---
 
 ## Tech stack
@@ -448,17 +457,25 @@ deployment. It is a portfolio project and the scope was chosen deliberately.
 
 ```
 ingest/         Tier 1 — clean, chunk, embed, index, publish
-serve/          Tier 2 — LangGraph app + FastAPI
+                sources.yaml — 363 RSS/Atom feeds across 130 domains
+serve/          Tier 2 — LangGraph app + FastAPI       ← the backend
   nodes/        adapt · language · gate · retrieve · websearch · stance ·
                 generate · terminal · render · export
 core/           the only shared surface — config, models, credibility,
                 compressors, prompts
-frontend/       React app (Vite, JavaScript) — builds into ui/dist/
-ui/             index.html, the no-build fallback interface
+frontend/       React app (Vite, JavaScript)           ← the frontend
+ui/             index.html, the no-build fallback; dist/ is the React build
 eval_harness/   datasets, metrics, runners, committed results
+docs/           execution-trace.html — one claim, file by file
 demo/           run_demo.py
 tests/          36 tests on the failures that produce no error
+notebooks/      the training notebooks for the two BERTs
 index/          the contract — CURRENT → v1/  (gitignored)
 ```
 
 `serve/` imports nothing from `ingest/`. There's a test that enforces it.
+
+The Python packages sit at the repo root rather than under a `backend/`
+wrapper: `serve/` is the backend and `frontend/` is the frontend, so the
+separation is already explicit, and keeping the packages at root is what makes
+`python -m ingest.run` and `python -m serve.cli` work as documented.

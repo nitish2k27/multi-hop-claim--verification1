@@ -1,0 +1,1084 @@
+<title>Anatomy of a Verification</title>
+<style>
+  /* ── Tokens: light is the bare :root, dark redefines only values ────────── */
+  :root {
+    --paper:      #f5f7f8;
+    --surface:    #ffffff;
+    --surface-2:  #eef1f3;
+    --ink:        #14181c;
+    --muted:      #5b656e;
+    --faint:      #8a949d;
+    --rule:       #dce1e5;
+    --accent:     #0c5f67;
+    --accent-ink: #0c5f67;
+    --accent-bg:  #e2eff0;
+    --pass:       #1c7548;
+    --drop:       #a3391f;
+    --hold:       #7d6318;
+    --shadow:     0 1px 2px rgba(20,24,28,.05), 0 8px 24px -16px rgba(20,24,28,.28);
+
+    --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", Consolas,
+            "SF Mono", "Roboto Mono", monospace;
+    --sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+            Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0e1114;
+      --surface:    #161a1e;
+      --surface-2:  #1d2328;
+      --ink:        #e2e7ea;
+      --muted:      #98a2ab;
+      --faint:      #6c767f;
+      --rule:       #262d33;
+      --accent:     #58bcc1;
+      --accent-ink: #7fd0d4;
+      --accent-bg:  #12292b;
+      --pass:       #56bd85;
+      --drop:       #e58767;
+      --hold:       #cfae55;
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:      #0e1114;
+    --surface:    #161a1e;
+    --surface-2:  #1d2328;
+    --ink:        #e2e7ea;
+    --muted:      #98a2ab;
+    --faint:      #6c767f;
+    --rule:       #262d33;
+    --accent:     #58bcc1;
+    --accent-ink: #7fd0d4;
+    --accent-bg:  #12292b;
+    --pass:       #56bd85;
+    --drop:       #e58767;
+    --hold:       #cfae55;
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+
+  /* ── Masthead ───────────────────────────────────────────────────────────── */
+  .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 1.5rem; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin: 0 0 .9rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -.025em;
+    font-weight: 680;
+    margin: 0 0 .7rem;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.06rem;
+    color: var(--muted);
+    max-width: 48ch;
+    margin: 0;
+  }
+
+  /* ── The claim under test ───────────────────────────────────────────────── */
+  .subject {
+    margin: 2.5rem 0 0;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: 1.25rem 1.4rem;
+    box-shadow: var(--shadow);
+  }
+  .subject .label {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    display: block;
+    margin-bottom: .5rem;
+  }
+  .subject q {
+    font-size: 1.2rem;
+    font-weight: 550;
+    letter-spacing: -.01em;
+    quotes: "\201C" "\201D";
+  }
+
+  .outcome-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: .76rem;
+    padding: .22rem .6rem;
+    border-radius: 2px;
+    background: var(--surface-2);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .chip b { color: var(--ink); font-weight: 620; }
+  .chip.good { background: var(--accent-bg); color: var(--accent-ink); }
+  .chip.good b { color: var(--accent-ink); }
+
+  /* ── Sections ───────────────────────────────────────────────────────────── */
+  h2 {
+    font-size: 1.45rem;
+    letter-spacing: -.018em;
+    font-weight: 650;
+    margin: 4rem 0 .4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    text-wrap: balance;
+  }
+  h2 .num {
+    font-family: var(--mono);
+    font-size: .8rem;
+    color: var(--accent-ink);
+    letter-spacing: .1em;
+    display: block;
+    font-weight: 500;
+    margin-bottom: .3rem;
+  }
+  .section-note { color: var(--muted); margin: .3rem 0 1.8rem; max-width: 64ch; }
+
+  p { max-width: 68ch; }
+
+  /* ── Figures ────────────────────────────────────────────────────────────── */
+  figure { margin: 2rem 0; }
+  figure svg { max-width: 100%; height: auto; display: block; color: var(--ink); }
+  figcaption {
+    font-size: .86rem;
+    color: var(--muted);
+    margin-top: .7rem;
+    max-width: 62ch;
+  }
+  .figframe {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1.5rem 1.25rem;
+    overflow-x: auto;
+  }
+
+  /* ── The execution spine ────────────────────────────────────────────────── */
+  .spine { margin: 2rem 0 0; }
+  .frame {
+    display: grid;
+    grid-template-columns: 3.1rem 1fr;
+    gap: 0 1.1rem;
+    position: relative;
+  }
+  .rail { position: relative; }
+  /* the connecting line: execution order, drawn as one continuous run */
+  .rail::before {
+    content: "";
+    position: absolute;
+    left: 1.32rem;
+    top: 2.3rem;
+    bottom: -.2rem;
+    width: 2px;
+    background: var(--rule);
+  }
+  .frame:last-child .rail::before { display: none; }
+  .step-no {
+    font-family: var(--mono);
+    font-size: .8rem;
+    font-weight: 600;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--surface);
+    color: var(--accent-ink);
+    border: 2px solid var(--accent);
+    margin: .35rem auto 0;
+    position: relative;
+    z-index: 1;
+  }
+  .step-no.edge {
+    border-color: var(--rule);
+    color: var(--faint);
+    border-style: dashed;
+  }
+
+  .body { padding-bottom: 2.2rem; min-width: 0; }
+  .frame:last-child .body { padding-bottom: 0; }
+
+  h3 {
+    font-size: 1.08rem;
+    font-weight: 640;
+    letter-spacing: -.012em;
+    margin: .45rem 0 .15rem;
+  }
+  h3 .node {
+    font-family: var(--mono);
+    background: var(--accent-bg);
+    color: var(--accent-ink);
+    font-size: .82rem;
+    padding: .1rem .45rem;
+    border-radius: 2px;
+    margin-right: .45rem;
+    font-weight: 600;
+  }
+  .timing {
+    font-family: var(--mono);
+    font-size: .76rem;
+    color: var(--faint);
+    margin-bottom: .8rem;
+  }
+  .body p { margin: .55rem 0; font-size: .95rem; }
+
+  /* ── Call frames: file → function → line ────────────────────────────────── */
+  .calls {
+    font-family: var(--mono);
+    font-size: .8rem;
+    line-height: 1.75;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: .85rem 1rem;
+    margin: .85rem 0;
+    overflow-x: auto;
+  }
+  .calls div { white-space: pre; }
+  .calls .f  { color: var(--accent-ink); }
+  .calls .fn { color: var(--ink); font-weight: 600; }
+  .calls .ln { color: var(--faint); }
+  .calls .cm { color: var(--muted); }
+
+  /* ── Measured data ──────────────────────────────────────────────────────── */
+  .data {
+    font-family: var(--mono);
+    font-size: .8rem;
+    background: var(--surface-2);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 3px 3px 0;
+    padding: .7rem .95rem;
+    margin: .85rem 0;
+    overflow-x: auto;
+  }
+  .data .k { color: var(--muted); }
+  .data .v { color: var(--ink); font-weight: 600; }
+  .data .drop { color: var(--drop); font-weight: 600; }
+  .data .pass { color: var(--pass); font-weight: 600; }
+  .data div { white-space: pre; }
+
+  .routed {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--muted);
+    margin-top: .7rem;
+  }
+  .routed b { color: var(--accent-ink); }
+
+  /* ── Tables ─────────────────────────────────────────────────────────────── */
+  .tablewrap { overflow-x: auto; margin: 1.5rem 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .875rem;
+    min-width: 34rem;
+  }
+  th, td {
+    text-align: left;
+    padding: .55rem .7rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 600;
+    border-bottom: 1.5px solid var(--rule);
+  }
+  td code { font-size: .82rem; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  code {
+    font-family: var(--mono);
+    font-size: .86em;
+    background: var(--surface-2);
+    padding: .08rem .3rem;
+    border-radius: 2px;
+  }
+
+  /* ── Callout ────────────────────────────────────────────────────────────── */
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--hold);
+    border-radius: 0 3px 3px 0;
+    padding: 1rem 1.2rem;
+    margin: 1.8rem 0;
+  }
+  .note h4 {
+    margin: 0 0 .4rem;
+    font-size: .8rem;
+    font-family: var(--mono);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--hold);
+    font-weight: 600;
+  }
+  .note p { margin: .4rem 0; font-size: .92rem; }
+  .note :last-child { margin-bottom: 0; }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+    font-size: .84rem;
+    color: var(--faint);
+  }
+
+  @media (max-width: 34rem) {
+    .frame { grid-template-columns: 2.2rem 1fr; gap: 0 .7rem; }
+    .rail::before { left: .95rem; }
+    .step-no { width: 1.75rem; height: 1.75rem; font-size: .7rem; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">VerifAI · execution trace</p>
+    <h1>Anatomy of a Verification</h1>
+    <p class="standfirst">
+      One claim, followed from the keystroke in the browser to the rendered
+      report — every file, every function, every line it passes through.
+    </p>
+  </header>
+
+  <div class="subject">
+    <span class="label">The claim under test</span>
+    <q>India's software exports reached 222 billion dollars in 2024-25</q>
+    <div class="outcome-row">
+      <span class="chip good"><b>TRUE</b> @ 80% confidence</span>
+      <span class="chip">outcome <b>verified</b></span>
+      <span class="chip">35 candidates → <b>3</b> evidence</span>
+      <span class="chip"><b>1</b> LLM call</span>
+      <span class="chip">total <b>6.91s</b></span>
+    </div>
+  </div>
+
+  <p class="section-note" style="margin-top:1.6rem">
+    Every number on this page came from an actual run on 2026-08-17 against
+    index <code>v1</code> (1,687 documents, 13,101 chunks). Nothing is
+    illustrative. Where a stage could not be executed on the machine that
+    produced this trace, it is marked as such rather than filled in.
+  </p>
+
+  <!-- ══ Overview diagram ══════════════════════════════════════════════════ -->
+  <h2><span class="num">Overview</span>Two processes, one stream</h2>
+  <p class="section-note">
+    The browser holds a React app; the server holds a LangGraph state machine.
+    They meet at exactly one place — a POST that never closes until the graph
+    finishes, dribbling one server-sent event per completed node.
+  </p>
+
+  <figure>
+    <div class="figframe">
+      <svg viewBox="0 0 900 260" role="img"
+           aria-label="A browser posts a multipart form to FastAPI, which drives a LangGraph state machine and streams one server-sent event back per completed node.">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- browser column -->
+        <rect x="8" y="30" width="230" height="200" rx="4"
+              fill="none" stroke="currentColor" stroke-width="1"
+              stroke-dasharray="3 3" opacity=".45"/>
+        <text x="20" y="22" font-family="monospace" font-size="11"
+              fill="currentColor" opacity=".65">BROWSER</text>
+
+        <rect x="28" y="52" width="190" height="34" rx="3"
+              fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="123" y="73" font-family="monospace" font-size="11.5"
+              text-anchor="middle" fill="currentColor">ClaimInput.jsx</text>
+
+        <rect x="28" y="106" width="190" height="34" rx="3"
+              fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="123" y="127" font-family="monospace" font-size="11.5"
+              text-anchor="middle" fill="currentColor">App.jsx · run()</text>
+
+        <rect x="28" y="160" width="190" height="34" rx="3"
+              fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="123" y="181" font-family="monospace" font-size="11.5"
+              text-anchor="middle" fill="currentColor">api.js · verifyStream()</text>
+
+        <line x1="123" y1="86" x2="123" y2="104" stroke="currentColor"
+              stroke-width="1.3" marker-end="url(#ar)"/>
+        <line x1="123" y1="140" x2="123" y2="158" stroke="currentColor"
+              stroke-width="1.3" marker-end="url(#ar)"/>
+
+        <!-- server column -->
+        <rect x="330" y="30" width="562" height="200" rx="4"
+              fill="none" stroke="currentColor" stroke-width="1"
+              stroke-dasharray="3 3" opacity=".45"/>
+        <text x="342" y="22" font-family="monospace" font-size="11"
+              fill="currentColor" opacity=".65">FASTAPI (uvicorn :8000)</text>
+
+        <rect x="352" y="52" width="200" height="34" rx="3"
+              fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="452" y="73" font-family="monospace" font-size="11.5"
+              text-anchor="middle" fill="currentColor">api.py · verify_stream()</text>
+
+        <rect x="352" y="106" width="200" height="34" rx="3"
+              fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="452" y="127" font-family="monospace" font-size="11.5"
+              text-anchor="middle" fill="currentColor">api.py · _build_state()</text>
+
+        <rect x="612" y="52" width="256" height="142" rx="3"
+              fill="none" stroke="#0c5f67" stroke-width="2"/>
+        <text x="740" y="72" font-family="monospace" font-size="11.5"
+              text-anchor="middle" fill="#0c5f67" font-weight="bold">graph.py · astream()</text>
+        <text x="740" y="96" font-family="monospace" font-size="10.5"
+              text-anchor="middle" fill="currentColor" opacity=".8">adapt → translate → gate</text>
+        <text x="740" y="114" font-family="monospace" font-size="10.5"
+              text-anchor="middle" fill="currentColor" opacity=".8">→ retrieve → stance</text>
+        <text x="740" y="132" font-family="monospace" font-size="10.5"
+              text-anchor="middle" fill="currentColor" opacity=".8">→ generate → render</text>
+        <text x="740" y="162" font-family="monospace" font-size="10"
+              text-anchor="middle" fill="currentColor" opacity=".55">one state dict,</text>
+        <text x="740" y="177" font-family="monospace" font-size="10"
+              text-anchor="middle" fill="currentColor" opacity=".55">merged per node</text>
+
+        <line x1="452" y1="86" x2="452" y2="104" stroke="currentColor"
+              stroke-width="1.3" marker-end="url(#ar)"/>
+        <line x1="556" y1="123" x2="606" y2="123" stroke="currentColor"
+              stroke-width="1.3" marker-end="url(#ar)"/>
+
+        <!-- request -->
+        <line x1="222" y1="170" x2="346" y2="76" stroke="currentColor"
+              stroke-width="1.6" marker-end="url(#ar)"/>
+        <text x="284" y="112" font-family="monospace" font-size="10"
+              text-anchor="middle" fill="currentColor" transform="rotate(-37 284 112)">POST multipart</text>
+
+        <!-- response -->
+        <line x1="606" y1="212" x2="230" y2="212" stroke="#0c5f67"
+              stroke-width="1.6" marker-end="url(#ar)"/>
+        <text x="418" y="228" font-family="monospace" font-size="10"
+              text-anchor="middle" fill="#0c5f67">1 SSE event per completed node</text>
+        <line x1="740" y1="198" x2="740" y2="212" stroke="#0c5f67"
+              stroke-width="1.6"/>
+      </svg>
+    </div>
+    <figcaption>
+      In development Vite proxies <code>/verify</code>, <code>/health</code> and
+      <code>/download</code> to port 8000, so the browser sees one origin and
+      never issues a CORS preflight. In a build, FastAPI serves the bundle
+      itself and the URLs are already same-origin — which is why
+      <code>api.js</code> uses relative paths and never needs to know which mode
+      it is in.
+    </figcaption>
+  </figure>
+
+  <!-- ══ The trace ═════════════════════════════════════════════════════════ -->
+  <h2><span class="num">The trace</span>Nine frames, keystroke to report</h2>
+  <p class="section-note">
+    Read the rail top to bottom. Each frame names the file that receives
+    control, the function inside it, and the line the call sits on.
+  </p>
+
+  <div class="spine">
+
+    <!-- 0 ── browser -->
+    <div class="frame">
+      <div class="rail"><div class="step-no edge">00</div></div>
+      <div class="body">
+        <h3>The submit handler</h3>
+        <div class="timing">frontend · no network yet</div>
+        <p>
+          The form's <code>onSubmit</code> hands a <code>{claim, file}</code>
+          pair upward. <code>App.run()</code> clears the previous result and
+          calls into the API layer, passing an <code>onStep</code> callback that
+          will fire once per graph node.
+        </p>
+        <div class="calls">
+<div><span class="f">frontend/src/components/ClaimInput.jsx</span>  <span class="cm">— form submit, also handles clipboard paste of screenshots</span></div>
+<div>  └─ <span class="f">frontend/src/App.jsx</span><span class="ln">:23</span>  <span class="fn">run({ claim, file })</span></div>
+<div>       └─ <span class="f">frontend/src/api.js</span><span class="ln">:25</span>  <span class="fn">verifyStream({ claim, file, onStep })</span></div>
+<div>            └─ <span class="fn">new FormData()</span> → <span class="fn">fetch('/verify/stream', { method: 'POST' })</span>  <span class="ln">:30</span></div>
+        </div>
+        <p>
+          <code>fetch</code> rather than <code>EventSource</code>: EventSource
+          cannot POST, and this endpoint takes a multipart body with an optional
+          file.
+        </p>
+      </div>
+    </div>
+
+    <!-- 1 ── fastapi -->
+    <div class="frame">
+      <div class="rail"><div class="step-no edge">01</div></div>
+      <div class="body">
+        <h3>Request lands, state is seeded</h3>
+        <div class="timing">backend entry point</div>
+        <p>
+          The endpoint builds the initial state dict and opens a streaming
+          response. The graph is compiled once per process and cached.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/api.py</span><span class="ln">:234</span>  <span class="fn">verify_stream(claim, file)</span>   <span class="cm">← @app.post("/verify/stream")</span></div>
+<div>  ├─ <span class="f">serve/api.py</span><span class="ln">:284</span>  <span class="fn">_build_state(claim, file)</span></div>
+<div>  │    └─ <span class="f">serve/schemas.py</span><span class="ln">:155</span>  <span class="fn">new_state(raw)</span></div>
+<div>  ├─ <span class="f">serve/graph.py</span><span class="ln">:152</span>  <span class="fn">get_app()</span>  <span class="cm">→ build_graph() on first call only (:103)</span></div>
+<div>  └─ <span class="f">serve/api.py</span><span class="ln">:257</span>  <span class="fn">get_app().astream(state, stream_mode="updates")</span></div>
+        </div>
+        <div class="data">
+<div><span class="k">seed state  </span> <span class="v">{"raw_input": "India's software exports reached 222 billion dollars in 2024-25",</span></div>
+<div><span class="k">            </span> <span class="v"> "diagnostics": {"llm_calls": 0}}</span></div>
+        </div>
+        <p>
+          Three input shapes are distinguished here and nowhere else: claim
+          only, file only, or file <em>plus</em> claim — the last meaning
+          "verify this claim against this document".
+        </p>
+      </div>
+    </div>
+
+    <!-- 2 ── adapt -->
+    <div class="frame">
+      <div class="rail"><div class="step-no">02</div></div>
+      <div class="body">
+        <h3><span class="node">adapt</span>Normalise any input to a claim</h3>
+        <div class="timing">0.00s · no model loaded</div>
+        <p>
+          Text passes straight through, so the common path costs nothing. Audio
+          would route to Groq Whisper, an image to Tesseract OCR, a PDF or DOCX
+          to a text extractor. Crucially this node <strong>never raises</strong>
+          — an unreadable file becomes a routed rejection carrying a reason,
+          not a stack trace.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/nodes/adapt.py</span><span class="ln">:325</span>  <span class="fn">adapt_input(state)</span></div>
+<div>  └─ <span class="f">serve/nodes/adapt.py</span><span class="ln">:348</span>  <span class="fn">_adapt(state)</span></div>
+<div>       └─ <span class="f">serve/nodes/adapt.py</span><span class="ln">:73</span>  <span class="fn">detect_kind(raw)</span>  <span class="cm">→ "text"</span></div>
+<div><span class="cm">        (voice → transcribe():100 · image → extract_image_text():159</span></div>
+<div><span class="cm">         document → extract_document_text():221)</span></div>
+        </div>
+        <div class="data">
+<div><span class="k">returns  </span> <span class="v">{"input_kind": "text", "claim": "India's software exports…"}</span></div>
+        </div>
+        <div class="routed">
+          route → <span class="f">serve/graph.py</span>:61 <b>route_after_adapt()</b> → no
+          <code>input_error</code> → <b>translate</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 ── translate -->
+    <div class="frame">
+      <div class="rail"><div class="step-no">03</div></div>
+      <div class="body">
+        <h3><span class="node">translate</span>Detect language, produce English</h3>
+        <div class="timing">0.33s · no LLM call</div>
+        <p>
+          Script-first detection (a regex table for Devanagari, Bengali, Tamil
+          and others), then <code>langdetect</code> with a fixed seed for
+          determinism. English short-circuits before any LLM is touched. The
+          original wording is kept in <code>claim</code> so the report comes
+          back in the user's language; <code>claim_english</code> is what
+          retrieval queries with.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/nodes/language.py</span><span class="ln">:141</span>  <span class="fn">to_english(state)</span></div>
+<div>  └─ <span class="f">serve/nodes/language.py</span><span class="ln">:69</span>  <span class="fn">detect_language(text)</span>  <span class="cm">→ "en"</span></div>
+<div><span class="cm">     (non-English would call translate_to_english():105 → +1 LLM call)</span></div>
+        </div>
+        <div class="data">
+<div><span class="k">returns  </span> <span class="v">{"language": "en", "claim_english": "India's software exports…"}</span></div>
+        </div>
+        <div class="routed">
+          route → unconditional edge → <b>gate</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 ── gate -->
+    <div class="frame">
+      <div class="rail"><div class="step-no">04</div></div>
+      <div class="body">
+        <h3><span class="node">gate</span>Is this even a claim?</h3>
+        <div class="timing">first local model load · 418 MB</div>
+        <p>
+          A fine-tuned BERT decides whether the input is a verifiable assertion
+          or a question, an opinion, or chit-chat. A rejection here costs zero
+          retrieval and zero tokens — the first of the two exits that never
+          reach an LLM.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/nodes/gate.py</span><span class="ln">:63</span>  <span class="fn">claim_gate(state)</span></div>
+<div>  ├─ length check <span class="ln">:73</span>  <span class="cm">MIN_CLAIM_CHARS = 8 — checked before inference</span></div>
+<div>  └─ <span class="f">serve/nodes/gate.py</span><span class="ln">:52</span>  <span class="fn">_score_claim(text)</span></div>
+<div>       └─ <span class="f">core/models.py</span><span class="ln">:91</span>  <span class="fn">claim_detector()</span>  <span class="cm">@lru_cache — bert-base-uncased</span></div>
+<div>            └─ torch softmax → P(LABEL_1)</div>
+        </div>
+        <div class="data">
+<div><span class="k">p(claim)   </span> <span class="pass">0.9999</span>   <span class="k">threshold</span> <span class="v">0.5</span>   <span class="k">→</span> <span class="pass">PASS</span></div>
+        </div>
+        <div class="routed">
+          route → <span class="f">serve/graph.py</span>:73 <b>route_after_gate()</b> →
+          <code>is_claim</code> → <b>retrieve</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 ── retrieve -->
+    <div class="frame">
+      <div class="rail"><div class="step-no">05</div></div>
+      <div class="body">
+        <h3><span class="node">retrieve</span>Hybrid search, rerank, floor, expand</h3>
+        <div class="timing">4.09s · the heaviest node</div>
+        <p>
+          The node itself is deliberately thin — assembly lives in
+          <code>serve/retriever.py</code>, built once per process. The first
+          call pays for the manifest interlock, Chroma, the parent docstore and
+          an unpickle of 13,101 BM25 entries.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/nodes/retrieve.py</span><span class="ln">:25</span>  <span class="fn">retrieve_evidence(state)</span></div>
+<div>  └─ <span class="f">serve/retriever.py</span><span class="ln">:375</span>  <span class="fn">get_retriever()</span>  <span class="cm">— singleton</span></div>
+<div>       └─ <span class="f">serve/retriever.py</span><span class="ln">:189</span>  <span class="fn">EvidenceRetriever.__init__()</span>   <span class="cm">first call only</span></div>
+<div>            ├─ <span class="ln">:94</span>  <span class="fn">load_manifest()</span>      <span class="cm">index/CURRENT → index/v1/manifest.json</span></div>
+<div>            ├─ <span class="ln">:113</span> <span class="fn">check_compatible()</span>   <span class="cm">refuses to boot on embed-model mismatch</span></div>
+<div>            ├─ <span class="ln">:147</span> <span class="fn">_load_vectorstore()</span>  <span class="cm">index/v1/chroma/</span></div>
+<div>            ├─ <span class="ln">:156</span> <span class="fn">_load_bm25()</span>         <span class="cm">index/v1/bm25.pkl</span></div>
+<div>            └─ <span class="ln">:173</span> <span class="fn">_load_parent_store()</span> <span class="cm">index/v1/parents/</span></div>
+        </div>
+        <p>Then the query itself:</p>
+        <div class="calls">
+<div><span class="f">serve/retriever.py</span><span class="ln">:228</span>  <span class="fn">EvidenceRetriever.retrieve(query)</span></div>
+<div>  ├─ <span class="ln">:236</span> <span class="fn">self.base.invoke()</span>  <span class="cm">EnsembleRetriever — dense 0.5 / BM25 0.5</span></div>
+<div>  ├─ <span class="ln">:237</span> <span class="fn">self.pipeline.compress_documents()</span></div>
+<div>  │     ├─ <span class="f">core/compressors.py</span><span class="ln">:83</span>  <span class="fn">ScoringCrossEncoderReranker</span></div>
+<div>  │     ├─ <span class="f">core/compressors.py</span><span class="ln">:140</span> <span class="fn">RelevanceFloor</span>       <span class="cm">floor = 0.25</span></div>
+<div>  │     └─ <span class="f">core/compressors.py</span><span class="ln">:170</span> <span class="fn">CredibilityScorer</span></div>
+<div>  │           └─ <span class="f">core/credibility.py</span><span class="ln">:287</span> <span class="fn">score_document(metadata)</span></div>
+<div>  └─ <span class="ln">:313</span> <span class="fn">expand_to_parents(chunks)</span>  <span class="cm">chunk → whole article, de-duplicated</span></div>
+        </div>
+        <div class="data">
+<div><span class="k">candidates            </span> <span class="v">35</span>      <span class="cm">(dense ∪ BM25, reciprocal-rank fused)</span></div>
+<div><span class="k">after cross-encoder   </span> <span class="v">8</span>       <span class="cm">top_k</span></div>
+<div><span class="k">after relevance floor </span> <span class="v">5</span>       <span class="cm">kept 5 of 8 — best dropped scored </span><span class="drop">0.1127</span></div>
+<div><span class="k">after parent expansion</span> <span class="v">3</span>       <span class="cm">5 chunks collapsed into 3 distinct articles</span></div>
+<div><span class="k">top relevance         </span> <span class="pass">0.999949</span></div>
+        </div>
+        <p>
+          Reranking happens <em>before</em> parent expansion, which is a
+          deliberate departure from the obvious ordering: score the 700-character
+          window that actually matched, then hand the LLM the whole article.
+          Three chunks from one piece must become one item of evidence, or the
+          report reads a single source as three-way corroboration.
+        </p>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Relevance</th><th>Credibility</th><th>Article</th><th>Chars</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">1</td><td class="num">0.999949</td>
+                <td class="num">0.80 MEDIUM</td>
+                <td>India's software exports touch 222 billion in 2024-25: ESC</td>
+                <td class="num">1,327</td>
+              </tr>
+              <tr>
+                <td class="num">2</td><td class="num">0.958587</td>
+                <td class="num">0.80 MEDIUM</td>
+                <td>Gulf crisis hits restaurants, food delivery, cross-border payments</td>
+                <td class="num">6,930</td>
+              </tr>
+              <tr>
+                <td class="num">3</td><td class="num">0.350463</td>
+                <td class="num">0.80 MEDIUM</td>
+                <td>As many as 6,789 recognised startups categorised as 'closed'</td>
+                <td class="num">1,768</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="routed">
+          route → <span class="f">serve/graph.py</span>:78 <b>route_after_retrieval()</b> →
+          evidence non-empty → <b>stance</b>
+          <br>
+          <span style="opacity:.75">(empty would go to <b>web</b>, then to
+          <b>abstain</b> if the web found nothing above the same floor)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 ── stance -->
+    <div class="frame">
+      <div class="rail"><div class="step-no">06</div></div>
+      <div class="body">
+        <h3><span class="node">stance</span>Label each document against the claim</h3>
+        <div class="timing">second local model · 413 MB</div>
+        <p>
+          One batched forward pass over all <em>(claim, evidence)</em> pairs.
+          The matched chunk is preferred over the full article: it is what the
+          retriever actually scored, and it fits inside the model's 256-token
+          training window.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/nodes/stance.py</span><span class="ln">:106</span>  <span class="fn">stance_and_credibility(state)</span></div>
+<div>  └─ <span class="f">serve/nodes/stance.py</span><span class="ln">:72</span>  <span class="fn">_classify(claim, texts)</span></div>
+<div>       └─ <span class="f">core/models.py</span><span class="ln">:116</span>  <span class="fn">stance_detector()</span>  <span class="cm">bert-base-cased, 208k FEVER pairs</span></div>
+<div>            └─ torch softmax → SUPPORTS / REFUTES / NOT ENOUGH INFO</div>
+        </div>
+        <p>
+          Credibility is <em>not</em> computed here — the compressor pipeline
+          already attached it during retrieval. This node only adds stance, then
+          summarises both for the prompt.
+        </p>
+        <div class="note">
+          <h4>Not captured in this run</h4>
+          <p>
+            The machine producing this trace could not hold both 400 MB BERTs in
+            memory at once, so this node's output is described from the code
+            rather than measured. Every other stage on this page is real.
+          </p>
+          <p>
+            The stance labels quoted in the report below therefore come from the
+            LLM's own <code>evidence_analysis</code>, which is a separate
+            judgement the model makes regardless — the BERT's labels are an
+            input signal to the prompt, never the verdict.
+          </p>
+        </div>
+        <div class="routed">
+          route → unconditional edge → <b>generate</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 ── generate -->
+    <div class="frame">
+      <div class="rail"><div class="step-no">07</div></div>
+      <div class="body">
+        <h3><span class="node">generate</span>The only guaranteed LLM call</h3>
+        <div class="timing">2.89s · 1 call · llama-3.3-70b-versatile</div>
+        <p>
+          Reached only with non-empty evidence, which is what makes "no
+          evidence" cost zero tokens. The prompt is a composed LangChain
+          template piped into a structured-output model, so the response is a
+          validated Pydantic object rather than prose to be parsed.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/nodes/generate.py</span><span class="ln">:106</span>  <span class="fn">generate_report(state)</span></div>
+<div>  ├─ <span class="f">core/prompts.py</span><span class="ln">:127</span>  <span class="fn">build_prompt()</span>          <span class="cm">ChatPromptTemplate</span></div>
+<div>  ├─ <span class="f">core/prompts.py</span><span class="ln">:140</span>  <span class="fn">format_evidence(docs, stances)</span>  <span class="cm">← the citation contract</span></div>
+<div>  ├─ <span class="f">core/prompts.py</span><span class="ln">:57</span>   <span class="fn">language_instruction(code)</span></div>
+<div>  ├─ <span class="f">core/llm.py</span><span class="ln">:87</span>      <span class="fn">get_llm()</span>  <span class="cm">→ ChatGroq</span></div>
+<div>  │     └─ <span class="fn">.with_structured_output(VerificationReport)</span>  <span class="cm">serve/schemas.py:62</span></div>
+<div>  └─ <span class="f">serve/nodes/generate.py</span><span class="ln">:38</span>  <span class="fn">_validate_citations(report, n)</span></div>
+<div><span class="cm">        problems → one retry quoting the bad indices back (:149)</span></div>
+<div><span class="cm">        still bad → _drop_bad_citations() (:69)</span></div>
+        </div>
+        <div class="data">
+<div><span class="k">verdict        </span> <span class="pass">TRUE</span></div>
+<div><span class="k">confidence     </span> <span class="v">80</span></div>
+<div><span class="k">claim_type     </span> <span class="v">statistical</span></div>
+<div><span class="k">llm_calls      </span> <span class="v">1</span>       <span class="cm">no retry needed</span></div>
+<div><span class="k">citation_retry </span> <span class="v">False</span>   <span class="cm">all evidence_index values in 1..3</span></div>
+<div><span class="k">assessments    </span> <span class="v">[1] SUPPORTS  direct=True</span></div>
+<div><span class="k">               </span> <span class="v">[2] NEUTRAL   direct=False</span></div>
+<div><span class="k">               </span> <span class="v">[3] NEUTRAL   direct=False</span></div>
+        </div>
+        <p>
+          The numbering in <code>format_evidence()</code> is a contract with
+          three consumers: the prompt that renders it, the stance list that
+          indexes into it, and the validator that checks the model's
+          <code>evidence_index</code> against it. Change the numbering in one
+          place and citation checking silently stops working.
+        </p>
+        <div class="routed">
+          route → unconditional edge → <b>render</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8 ── render -->
+    <div class="frame">
+      <div class="rail"><div class="step-no">08</div></div>
+      <div class="body">
+        <h3><span class="node">render</span>One renderer, three exits</h3>
+        <div class="timing">0.00s · 2,768 characters</div>
+        <p>
+          Every path through the graph ends here — verified, abstained or
+          rejected. None can return a bare state or a traceback. Audio is
+          produced only when the input was voice: you get an answer back in the
+          form you asked the question in.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/nodes/render.py</span><span class="ln">:222</span>  <span class="fn">render_output(state)</span></div>
+<div>  ├─ report present  → <span class="ln">:105</span> <span class="fn">_render_report(state, report)</span></div>
+<div>  ├─ report is None  → <span class="ln">:91</span>  <span class="fn">_render_rejected(state)</span></div>
+<div>  └─ input_kind == "voice" → <span class="f">serve/nodes/export.py</span><span class="ln">:273</span> <span class="fn">export(state, ["mp3"])</span></div>
+        </div>
+        <div class="data">
+<div><span class="k">outcome  </span> <span class="pass">verified</span></div>
+<div><span class="k">rendered </span> <span class="v">2,768 chars of markdown</span></div>
+<div><span class="k">artifacts</span> <span class="v">{}</span>   <span class="cm">text input — no mp3 generated</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9 ── back out -->
+    <div class="frame">
+      <div class="rail"><div class="step-no edge">09</div></div>
+      <div class="body">
+        <h3>Back out to the browser</h3>
+        <div class="timing">SSE frames, then the final payload</div>
+        <p>
+          The streaming loop has been emitting a frame after every node all
+          along; now it emits the terminal one. This is the whole reason the
+          pipeline is a graph rather than a chain — node names become step IDs
+          for free, and adding a node adds a progress step with no plumbing on
+          either side.
+        </p>
+        <div class="calls">
+<div><span class="f">serve/api.py</span><span class="ln">:259</span>  per-node: <span class="fn">_summarise(node, update)</span> <span class="ln">:87</span> → <span class="fn">_sse(payload)</span> <span class="ln">:83</span></div>
+<div><span class="f">serve/api.py</span><span class="ln">:265</span>  final:    <span class="fn">_final_payload(final, elapsed)</span> <span class="ln">:128</span></div>
+<div>  ↓  <span class="cm">text/event-stream, X-Accel-Buffering: no</span></div>
+<div><span class="f">frontend/src/api.js</span><span class="ln">:46</span>   frame split on blank line, partial frame retained</div>
+<div>  ├─ <span class="ln">:61</span> <span class="fn">onStep(step, detail)</span>  → <span class="f">App.jsx</span><span class="ln">:34</span> → <span class="f">Progress.jsx</span></div>
+<div>  └─ <span class="ln">:62</span> <span class="fn">result = event.result</span> → <span class="f">App.jsx</span><span class="ln">:36</span> <span class="fn">setResult</span> → <span class="f">Report.jsx</span></div>
+<div>       └─ <span class="f">frontend/src/history.js</span>  <span class="fn">saveEntry()</span>  <span class="cm">→ localStorage, 40 entries max</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ Branch map ════════════════════════════════════════════════════════ -->
+  <h2><span class="num">Branching</span>The paths not taken</h2>
+  <p class="section-note">
+    Two of the three exits never reach an LLM. That is the architectural point
+    of the whole system, so it is expressed as edges in a graph rather than as
+    an <code>if</code> buried in a request handler.
+  </p>
+
+  <figure>
+    <div class="figframe">
+      <svg viewBox="0 0 880 300" role="img"
+           aria-label="Graph branch map: adapt and gate can route to reject; retrieve can route to web search and then to abstain; only the evidence path reaches the LLM in generate.">
+        <defs>
+          <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+          </marker>
+          <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0c5f67"/>
+          </marker>
+        </defs>
+
+        <!-- main row (taken path, accented) -->
+        <g font-family="monospace" font-size="11.5" text-anchor="middle">
+          <rect x="14"  y="100" width="86" height="32" rx="3" fill="none" stroke="#0c5f67" stroke-width="2"/>
+          <text x="57"  y="120" fill="#0c5f67">adapt</text>
+
+          <rect x="132" y="100" width="96" height="32" rx="3" fill="none" stroke="#0c5f67" stroke-width="2"/>
+          <text x="180" y="120" fill="#0c5f67">translate</text>
+
+          <rect x="260" y="100" width="78" height="32" rx="3" fill="none" stroke="#0c5f67" stroke-width="2"/>
+          <text x="299" y="120" fill="#0c5f67">gate</text>
+
+          <rect x="370" y="100" width="94" height="32" rx="3" fill="none" stroke="#0c5f67" stroke-width="2"/>
+          <text x="417" y="120" fill="#0c5f67">retrieve</text>
+
+          <rect x="496" y="100" width="84" height="32" rx="3" fill="none" stroke="#0c5f67" stroke-width="2"/>
+          <text x="538" y="120" fill="#0c5f67">stance</text>
+
+          <rect x="612" y="100" width="96" height="32" rx="3" fill="none" stroke="#0c5f67" stroke-width="2"/>
+          <text x="660" y="120" fill="#0c5f67">generate</text>
+
+          <rect x="756" y="100" width="86" height="32" rx="3" fill="none" stroke="#0c5f67" stroke-width="2"/>
+          <text x="799" y="120" fill="#0c5f67">render</text>
+        </g>
+
+        <!-- main arrows -->
+        <g stroke="#0c5f67" stroke-width="1.8">
+          <line x1="100" y1="116" x2="126" y2="116" marker-end="url(#ar3)"/>
+          <line x1="228" y1="116" x2="254" y2="116" marker-end="url(#ar3)"/>
+          <line x1="338" y1="116" x2="364" y2="116" marker-end="url(#ar3)"/>
+          <line x1="464" y1="116" x2="490" y2="116" marker-end="url(#ar3)"/>
+          <line x1="580" y1="116" x2="606" y2="116" marker-end="url(#ar3)"/>
+          <line x1="708" y1="116" x2="750" y2="116" marker-end="url(#ar3)"/>
+        </g>
+
+        <!-- reject row -->
+        <g font-family="monospace" font-size="11.5" text-anchor="middle">
+          <rect x="240" y="22" width="86" height="30" rx="3" fill="none"
+                stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="283" y="42" fill="currentColor" opacity=".8">reject</text>
+        </g>
+        <g stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" opacity=".65">
+          <path d="M 57 100 L 57 37 L 234 37" fill="none" marker-end="url(#ar2)"/>
+          <path d="M 299 100 L 299 56" fill="none" marker-end="url(#ar2)"/>
+        </g>
+        <text x="120" y="30" font-family="monospace" font-size="9.5"
+              fill="currentColor" opacity=".65">unreadable input</text>
+        <text x="352" y="76" font-family="monospace" font-size="9.5"
+              fill="currentColor" opacity=".65">not a claim</text>
+
+        <!-- web + abstain row -->
+        <g font-family="monospace" font-size="11.5" text-anchor="middle">
+          <rect x="374" y="196" width="86" height="30" rx="3" fill="none"
+                stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="417" y="216" fill="currentColor" opacity=".8">web</text>
+
+          <rect x="500" y="196" width="92" height="30" rx="3" fill="none"
+                stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="546" y="216" fill="currentColor" opacity=".8">abstain</text>
+        </g>
+        <g stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" opacity=".65">
+          <line x1="417" y1="132" x2="417" y2="192" marker-end="url(#ar2)"/>
+          <line x1="460" y1="211" x2="494" y2="211" marker-end="url(#ar2)"/>
+          <path d="M 417 226 L 417 258 L 546 258" fill="none"/>
+          <path d="M 546 226 L 546 258" fill="none"/>
+          <path d="M 592 211 L 799 211 L 799 136" fill="none" marker-end="url(#ar2)"/>
+          <path d="M 283 52 L 283 272 L 799 272 L 799 136" fill="none" marker-end="url(#ar2)"/>
+        </g>
+        <text x="432" y="166" font-family="monospace" font-size="9.5"
+              fill="currentColor" opacity=".65" text-anchor="start">nothing above floor</text>
+        <text x="480" y="252" font-family="monospace" font-size="9.5"
+              fill="currentColor" opacity=".65" text-anchor="middle">same floor applies</text>
+
+        <text x="20" y="292" font-family="monospace" font-size="9.5"
+              fill="#0c5f67">━━ path this claim took</text>
+        <text x="200" y="292" font-family="monospace" font-size="9.5"
+              fill="currentColor" opacity=".65">┄┄ zero-LLM exits</text>
+      </svg>
+    </div>
+    <figcaption>
+      Web results are held to the <em>same</em> relevance floor as index
+      results. A fallback that always finds something would quietly delete the
+      abstention behaviour the system is built around, so <code>abstain</code>
+      stays reachable even with web search enabled.
+    </figcaption>
+  </figure>
+
+  <!-- ══ File index ════════════════════════════════════════════════════════ -->
+  <h2><span class="num">Index</span>Every file this request touched</h2>
+  <p class="section-note">
+    In call order. Files loaded once per process are marked; everything else
+    runs per request.
+  </p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th>File</th><th>Entry point</th><th>Role in this request</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>frontend/src/components/ClaimInput.jsx</code></td><td><code>onSubmit</code></td><td>Collects claim and optional file; handles screenshot paste</td></tr>
+        <tr><td><code>frontend/src/App.jsx</code></td><td><code>run()</code> :23</td><td>Clears prior state, wires the progress callback</td></tr>
+        <tr><td><code>frontend/src/api.js</code></td><td><code>verifyStream()</code> :25</td><td>POSTs multipart, parses the SSE frames</td></tr>
+        <tr><td><code>serve/api.py</code></td><td><code>verify_stream()</code> :234</td><td>HTTP endpoint, streaming response, per-node summaries</td></tr>
+        <tr><td><code>serve/schemas.py</code></td><td><code>new_state()</code> :155</td><td>Seeds the state dict; defines <code>VerificationReport</code></td></tr>
+        <tr><td><code>serve/graph.py</code></td><td><code>get_app()</code> :152</td><td>Compiled state machine <em>(once per process)</em></td></tr>
+        <tr><td><code>serve/nodes/adapt.py</code></td><td><code>adapt_input()</code> :325</td><td>Input normalisation; text passed through</td></tr>
+        <tr><td><code>serve/nodes/language.py</code></td><td><code>to_english()</code> :141</td><td>Language detection; English short-circuit</td></tr>
+        <tr><td><code>serve/nodes/gate.py</code></td><td><code>claim_gate()</code> :63</td><td>Claim / not-a-claim decision</td></tr>
+        <tr><td><code>core/models.py</code></td><td><code>claim_detector()</code> :91</td><td>Loads the BERT <em>(once per process)</em></td></tr>
+        <tr><td><code>serve/nodes/retrieve.py</code></td><td><code>retrieve_evidence()</code> :25</td><td>Runs the read path; merges any upload evidence</td></tr>
+        <tr><td><code>serve/retriever.py</code></td><td><code>retrieve()</code> :228</td><td>Ensemble → compress → expand <em>(built once)</em></td></tr>
+        <tr><td><code>core/compressors.py</code></td><td><code>compress_documents()</code> :83, :140, :170</td><td>Rerank, floor, credibility — in that order</td></tr>
+        <tr><td><code>core/credibility.py</code></td><td><code>score_document()</code> :287</td><td>Domain, source type and recency into one score</td></tr>
+        <tr><td><code>serve/nodes/stance.py</code></td><td><code>stance_and_credibility()</code> :106</td><td>Batched stance classification</td></tr>
+        <tr><td><code>serve/nodes/generate.py</code></td><td><code>generate_report()</code> :106</td><td>The LLM call and the citation validator</td></tr>
+        <tr><td><code>core/prompts.py</code></td><td><code>format_evidence()</code> :140</td><td>Numbers the evidence — the citation contract</td></tr>
+        <tr><td><code>core/llm.py</code></td><td><code>get_llm()</code> :87</td><td>Groq client with model verification at startup</td></tr>
+        <tr><td><code>serve/nodes/render.py</code></td><td><code>render_output()</code> :222</td><td>Markdown for whichever exit was reached</td></tr>
+        <tr><td><code>frontend/src/history.js</code></td><td><code>saveEntry()</code></td><td>Persists the run to localStorage</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:1.6rem">
+    Data read from disk, none of it via an import:
+    <code>index/CURRENT</code> → <code>index/v1/manifest.json</code>,
+    <code>index/v1/chroma/</code>, <code>index/v1/bm25.pkl</code>,
+    <code>index/v1/parents/</code>. This is the entire interface between the
+    write tier and the read tier — <code>serve/</code> imports nothing from
+    <code>ingest/</code>, and a test enforces it.
+  </p>
+
+  <!-- ══ Output ════════════════════════════════════════════════════════════ -->
+  <h2><span class="num">Output</span>What came back</h2>
+  <p class="section-note">
+    The rendered markdown, abridged. The full response is 2,768 characters.
+  </p>
+
+  <div class="data" style="border-left-color: var(--pass); white-space: normal">
+<div><span class="k"># Verification report</span></div>
+<div> </div>
+<div><span class="k">## Verdict</span></div>
+<div><span class="pass">**TRUE**</span> <span class="k">— 80% confidence · claim type: statistical</span></div>
+<div> </div>
+<div><span class="k">## Key findings</span></div>
+<div><span class="v">India's software exports reached 222 billion in 2024-25,</span></div>
+<div><span class="v">with an 11% increase from the previous year.  [1]</span></div>
+<div><span class="k">  > "The export of computer software and services, including</span></div>
+<div><span class="k">     ITeS and BPO, increased by 11 on a year-over-year basis</span></div>
+<div><span class="k">     to 222 billion in 2024-25"</span></div>
+<div> </div>
+<div><span class="k">## Limitations</span></div>
+<div><span class="v">- The evidence does not provide a clear date of publication,</span></div>
+<div><span class="v">  which may affect its reliability.</span></div>
+<div> </div>
+<div><span class="k">---</span></div>
+<div><span class="k">outcome: `verified` · evidence: 3 · candidates: 35 · LLM calls: 1</span></div>
+  </div>
+
+  <div class="note">
+    <h4>Worth noticing</h4>
+    <p>
+      The model reported 80%, not 95%, and volunteered the missing publication
+      date as a limitation — that date gap is a real, known property of the
+      current corpus, and the credibility scorer had already flagged it
+      (<code>date_reliable: false</code>, recency dropped from the weighting).
+      Evidence items 2 and 3 cleared the relevance floor but were marked
+      <code>directly_relevant: false</code>, which is the LLM catching what the
+      floor alone cannot: topically present, factually beside the point.
+    </p>
+  </div>
+
+  <footer>
+    Generated 2026-08-17 · VerifAI index <code>v1</code> ·
+    1,687 documents, 13,101 chunks · all-MiniLM-L6-v2 (dim 384) ·
+    relevance floor 0.25 · llama-3.3-70b-versatile
+  </footer>
+
+</div>
