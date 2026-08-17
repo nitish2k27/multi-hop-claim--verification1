@@ -138,8 +138,12 @@ class VerifyState(TypedDict, total=False):
 
     # Retrieval
     evidence: list[Document]
-    evidence_source: Literal["index", "web", "upload", "none"]
+    evidence_source: Literal["index", "web", "upload", "mixed", "none"]
     retrieval_stats: dict[str, Any]
+    # Set by the web node. The graph reads it as a loop guard: `generate` can
+    # send an UNVERIFIABLE verdict back out to the web, and without this the
+    # web -> stance -> generate -> web cycle would never terminate.
+    web_attempted: bool
 
     # Stance
     stances: list[dict[str, Any]]

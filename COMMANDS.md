@@ -268,7 +268,7 @@ curl.exe http://127.0.0.1:8000/health
 ## 4. Tests, demo, evaluation
 
 ```powershell
-pytest                                    # 53 tests, no network, no API calls
+pytest                                    # 68 tests, no network, no API calls
 pytest tests\test_crawl.py -v             # just the crawl tests
 python -m demo.run_demo                   # the full demo, ~80 seconds
 python -m eval_harness.run_eval --all     # the full evaluation (uses Groq quota)

@@ -161,31 +161,53 @@ def web_search(state: VerifyState) -> dict:
     claim = state.get("claim_english") or state.get("claim", "")
     stats = dict(state.get("retrieval_stats") or {})
 
+    # Evidence already in hand. Empty on the first pass (the index found
+    # nothing); non-empty on an escalation, where the index returned material
+    # the model could not reach a verdict from. Web results are *added* to it
+    # rather than replacing it — the index evidence was topical, it simply was
+    # not sufficient, and dropping it would discard context the model may need
+    # to combine with what the search turns up.
+    existing = list(state.get("evidence") or [])
+    escalated = bool(existing)
+
+    # Marked before any early return. A search that was skipped or failed still
+    # counts as attempted: the graph must not send the same claim back here.
+    base = {"web_attempted": True, "retrieval_stats": stats}
+
+    def _nothing_found(**extra) -> dict:
+        return {**base, **extra, "evidence": existing,
+                "evidence_source": state.get("evidence_source", "none")}
+
     reason = _tavily_unavailable()
     if reason:
         if not _WARNED_NO_KEY:
-            logger.warning("Web search unavailable — %s. Routing to abstain.", reason)
+            logger.warning("Web search unavailable — %s.", reason)
             _WARNED_NO_KEY = True
         stats["web_skipped"] = reason
-        return {"evidence": [], "evidence_source": "none", "retrieval_stats": stats}
+        return _nothing_found()
 
-    logger.info("Index found nothing — searching the web for %r", claim[:60])
+    logger.info(
+        "%s — searching the web for %r",
+        "Verdict was UNVERIFIABLE" if escalated else "Index found nothing",
+        claim[:60],
+    )
 
     try:
         raw = _build_retriever().invoke(claim)
     except Exception as exc:
-        # A search failure must not take down a verification. Abstaining is a
-        # correct, already-implemented outcome; crashing is not.
-        logger.error("Web search failed (%s) — routing to abstain", exc)
+        # A search failure must not take down a verification. Abstaining, or
+        # keeping the verdict we already have, is a correct outcome; crashing
+        # is not.
+        logger.error("Web search failed (%s)", exc)
         stats["web_error"] = str(exc)
-        return {"evidence": [], "evidence_source": "none", "retrieval_stats": stats}
+        return _nothing_found()
 
     candidates = _to_evidence(raw)
     stats["web_results"] = len(candidates)
 
     if not candidates:
         logger.info("Web search returned nothing usable")
-        return {"evidence": [], "evidence_source": "none", "retrieval_stats": stats}
+        return _nothing_found()
 
     # The same compressor pipeline the index results go through. This is the
     # line that keeps abstention meaningful: search hits are candidates, not
@@ -205,10 +227,21 @@ def web_search(state: VerifyState) -> dict:
         stats["web_top_relevance"],
     )
 
+    # Index evidence keeps its position, so the 1-based indices the previous
+    # report cited still point at the same documents. Web results are appended,
+    # taking fresh indices after them. `core.prompts.format_evidence` numbers
+    # by position, so a stable prefix means a stable citation contract.
+    merged = existing + kept
+
+    if escalated:
+        source = "mixed" if kept else state.get("evidence_source", "index")
+    else:
+        source = "web" if kept else "none"
+
     return {
-        "evidence": kept,
-        "evidence_source": "web" if kept else "none",
-        "retrieval_stats": stats,
+        **base,
+        "evidence": merged,
+        "evidence_source": source,
     }
 
 

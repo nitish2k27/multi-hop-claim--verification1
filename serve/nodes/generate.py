@@ -35,6 +35,54 @@ class CitationError(ValueError):
     """A generated report cited evidence that does not exist."""
 
 
+# Structured output is a constraint on the *request*, not a guarantee about the
+# generation. The model still emits the JSON itself, and it can emit invalid
+# JSON — observed in the wild from `openai/gpt-oss-120b`:
+#
+#     "confidence":  thirty,
+#
+# The word, not the number. Groq's tool-call parser rejects the whole call with
+# a 400 `tool_use_failed`, and without a retry that one token kills a run that
+# had already paid for retrieval, stance detection and a web search.
+#
+# Sampling is stochastic, so a second attempt almost always parses. This is a
+# different failure from a bad citation — that one needs the specific indices
+# quoted back, this one just needs another roll.
+GENERATION_ATTEMPTS = 3
+
+_MALFORMED = ("tool_use_failed", "failed to parse", "invalid_request_error",
+              "json", "tool call")
+
+
+def _is_malformed_generation(exc: Exception) -> bool:
+    """Is this the model emitting unparseable JSON, rather than a real error?"""
+    text = str(exc).lower()
+    return any(marker in text for marker in _MALFORMED)
+
+
+def _generate_once(chain, inputs: dict) -> VerificationReport:
+    """
+    Invoke the chain, retrying a malformed generation.
+
+    Only retries the parse failure. A quota error, an auth error or a retired
+    model must surface immediately — retrying those burns time and tells the
+    user nothing, and `core.llm` already classifies them.
+    """
+    last: Exception | None = None
+    for attempt in range(1, GENERATION_ATTEMPTS + 1):
+        try:
+            return chain.invoke(inputs)
+        except Exception as exc:
+            if not _is_malformed_generation(exc) or attempt == GENERATION_ATTEMPTS:
+                raise
+            last = exc
+            logger.warning(
+                "Model emitted unparseable structured output (attempt %d/%d) — "
+                "retrying. %s", attempt, GENERATION_ATTEMPTS, str(exc)[:120],
+            )
+    raise last  # unreachable; keeps type checkers honest
+
+
 def _validate_citations(
     report: VerificationReport, evidence_count: int
 ) -> list[str]:
@@ -130,7 +178,7 @@ def generate_report(state: VerifyState) -> dict:
     diagnostics = dict(state.get("diagnostics", {}))
     calls = diagnostics.get("llm_calls", 0)
 
-    report: VerificationReport = chain.invoke(inputs)
+    report: VerificationReport = _generate_once(chain, inputs)
     calls += 1
 
     problems = _validate_citations(report, len(documents))
@@ -146,7 +194,7 @@ def generate_report(state: VerifyState) -> dict:
             f"{len(documents)} inclusive, matching the numbered items above. "
             "Re-answer using only those."
         )
-        report = chain.invoke({
+        report = _generate_once(chain, {
             **inputs, "evidence_block": inputs["evidence_block"] + correction
         })
         calls += 1

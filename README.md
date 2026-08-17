@@ -124,6 +124,41 @@ Raising the floor from 0.02 to 0.60 improves adversarial abstention only
 the LLM's `directly_relevant` judgement handles the rest. That is why the output
 schema has that field.
 
+### The near miss gets a second source
+
+There is a third case the floor cannot reach, and it needed an extra edge in
+the graph rather than a better threshold.
+
+*"India's GDP grew 8% in 2024"* retrieves six genuinely on-topic articles at
+**0.97 relevance** — the corpus is full of Indian economy coverage. They clear
+any sane floor. The model then reads them and correctly answers
+`UNVERIFIABLE`, because none of them contains that figure.
+
+Originally the run ended there, with a configured web fallback that was never
+asked: the fallback only fired when retrieval returned *nothing*, and this
+returned plenty. So `UNVERIFIABLE` now escalates to the web **once**, and the
+results are appended to the index evidence rather than replacing it — that
+material was topical, just insufficient.
+
+```
+retrieve → 6 articles @ 0.97 → generate → UNVERIFIABLE @ 30%
+   ↓ escalate
+web → 3 above floor → stance over 9 items → generate → MOSTLY_FALSE @ 45%
+```
+
+The second pass found that the 8% figure belongs to the first half of
+FY 2025-26, not calendar 2024. A dead end became a correct verdict for one
+extra LLM call.
+
+Only `UNVERIFIABLE` escalates — the other four verdicts mean the model reached
+a conclusion, and re-searching would spend a call for the chance to unsettle a
+sound one. `web_attempted` bounds it to a single extra lap; that flag is the
+only thing between this and an infinite `web → stance → generate → web` cycle.
+
+**The measured numbers above are unaffected.** The system eval runs with web
+search disabled, and the escalation respects the same flag, so the 20/20
+abstention still describes the same system.
+
 ---
 
 ## Multimodal input
@@ -236,8 +271,10 @@ graph TD;
 	retrieve -.->|web disabled| abstain;
 	web -.->|evidence| stance;
 	web -.->|still nothing| abstain;
+	web -.->|nothing new, keep verdict| render;
 	stance --> generate;
-	generate --> render;
+	generate -.->|UNVERIFIABLE, once| web;
+	generate -.->|verdict reached| render;
 	abstain --> render;
 	reject --> render;
 	render --> __end__;
@@ -337,7 +374,7 @@ Full list with setup, troubleshooting and per-tier detail: [**`COMMANDS.md`**](C
 | `cd frontend && npm run build` | build into `ui/dist/`, served by FastAPI |
 | `python -m demo.run_demo` | the demo, ~80 seconds |
 | `python -m eval_harness.run_eval --all` | the full evaluation |
-| `pytest` | 53 tests, no network, no API calls |
+| `pytest` | 68 tests, no network, no API calls |
 
 Exit codes: `0` verified · `2` abstained · `3` rejected · `4` index problem ·
 `5` API quota.
@@ -706,7 +743,7 @@ ui/             index.html — the no-build fallback interface
 eval_harness/   datasets, metrics, runners, committed results
 docs/           execution-trace.html — one claim, file by file, line by line
 demo/           run_demo.py
-tests/          53 tests on the failures that produce no error
+tests/          68 tests on the failures that produce no error
 notebooks/      the training notebooks for the two BERTs
 scripts/        cleanup.py · push_to_hub.py
 
