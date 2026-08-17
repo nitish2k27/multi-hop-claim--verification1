@@ -121,7 +121,9 @@ SCENARIOS = [
     ),
     Scenario(
         title="5. Outside the corpus, found on the web",
-        claim="Who won the most recent Formula 1 world championship?",
+        # Must be a declarative claim, not a question — a question is correctly
+        # rejected at the gate and never reaches the web fallback at all.
+        claim="Max Verstappen won the 2024 Formula 1 World Championship",
         shows="the M4 fallback — the index abstains, live web search runs, and "
               "results are held to the same relevance floor",
         expect="a verdict sourced from the web, labelled as such",

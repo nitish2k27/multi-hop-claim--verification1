@@ -25,6 +25,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 
 from core.config import ROOT, cfg
@@ -39,7 +40,9 @@ app = FastAPI(title="VerifAI", version="2.0.0")
 UPLOAD_DIR = Path(tempfile.gettempdir()) / "verifai-uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-UI_FILE = ROOT / "ui" / "index.html"
+UI_FILE = ROOT / "ui" / "index.html"        # no-build fallback
+REACT_DIST = ROOT / "ui" / "dist"           # written by `npm run build`
+REACT_INDEX = REACT_DIST / "index.html"
 
 # Accepted upload types, mirroring serve.nodes.adapt. Anything else is refused
 # at the door rather than after it has been written to disk.
@@ -158,9 +161,19 @@ def _final_payload(state: dict, elapsed: float) -> dict:
 
 @app.get("/", response_class=HTMLResponse)
 async def index() -> str:
-    if not UI_FILE.exists():
-        return "<h1>VerifAI</h1><p>UI not found. The API is at /verify.</p>"
-    return UI_FILE.read_text(encoding="utf-8")
+    """
+    Serve the React build if it exists, else the single-file fallback UI.
+
+    `frontend/` builds into `ui/dist/`. That directory is only present after
+    `npm run build`, so a clone with no Node toolchain still gets a working
+    interface from `ui/index.html` — the app is usable without ever installing
+    npm, and the React build is an upgrade rather than a requirement.
+    """
+    if REACT_INDEX.exists():
+        return REACT_INDEX.read_text(encoding="utf-8")
+    if UI_FILE.exists():
+        return UI_FILE.read_text(encoding="utf-8")
+    return "<h1>VerifAI</h1><p>No UI built. The API is at /verify.</p>"
 
 
 @app.get("/health")
@@ -304,6 +317,29 @@ async def download(name: str):
 async def export_report(payload: dict) -> dict:
     """Not implemented — exports are produced during /verify via `formats`."""
     raise HTTPException(501, "Use the artifacts returned by /verify.")
+
+
+# The React build's hashed JS/CSS live under /assets. Mounted only when the
+# build exists so a clone without Node does not fail at import.
+if REACT_DIST.exists():
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount("/assets", StaticFiles(directory=REACT_DIST / "assets"),
+              name="assets")
+
+
+# CORS, for running the Vite dev server directly against this API.
+#
+# Not needed for the normal flow — vite.config.js proxies /verify, /health and
+# /download to this port, so the browser sees one origin and never sends a
+# preflight. This is here for anyone who bypasses the proxy. Localhost only;
+# opening it wider would be pointless for a single-user local tool.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")

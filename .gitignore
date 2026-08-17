@@ -168,6 +168,14 @@ _trash/
 # Generated report exports (html/docx/mp3 written by serve.nodes.export).
 data/outputs/
 
+# --- React frontend ---------------------------------------------------------
+frontend/node_modules/
+ui/dist/
+# The blanket *.json rule above would swallow the manifest and lockfile, which
+# are the two files a clone actually needs to reproduce the frontend build.
+!frontend/package.json
+!frontend/package-lock.json
+
 # --- Test fixtures ARE committed -------------------------------------------
 # The blanket image/audio rules above would swallow them, but the demo's voice
 # and image scenarios and several tests need these files on a clean clone.

@@ -279,6 +279,7 @@ python -m demo.run_demo           # the full demo, ~80 seconds
 | `python -m serve.cli --document f.pdf "claim"` | check a claim against a file |
 | `python -m serve.cli --export html,docx "claim"` | also write those formats |
 | `uvicorn serve.api:app` | web UI at `127.0.0.1:8000` |
+| `cd frontend && npm run dev` | React dev server with hot reload |
 | `python -m demo.run_demo` | the demo |
 | `python -m eval_harness.run_eval --all` | the full evaluation |
 | `pytest` | 36 tests, ~7s, no API calls |
@@ -322,6 +323,35 @@ than a pip package:
 Then add it to `PATH`, or set `TESSERACT_CMD` in `.env`. **Every other input
 type works without it** — image upload reports that OCR is unavailable and
 nothing else is affected.
+
+---
+
+## The web interface
+
+A small React app (JavaScript, no TypeScript) in [`frontend/`](frontend/). No
+accounts, no auth — it is a single-user local tool.
+
+```bash
+uvicorn serve.api:app                 # backend on :8000, serves the built UI
+cd frontend && npm install && npm run dev   # optional: hot reload on :5173
+```
+
+**How it connects to FastAPI.** In development the Vite dev server proxies
+`/verify`, `/health` and `/download` to `127.0.0.1:8000`, so the browser sees a
+single origin and there is no CORS preflight to fight with on a multipart
+upload. `npm run build` writes to `ui/dist/`, which FastAPI then serves itself —
+same relative URLs, one process, no proxy. **If you never install Node**, the
+API falls back to a self-contained `ui/index.html`, so the app still works.
+
+Progress is streamed over server-sent events: the backend emits one event per
+completed graph node, so the interface shows `read input → language → claim
+check → search index → verdict` as it happens rather than spinning until the
+end. Adding a node to the pipeline adds a step to the UI with no other change.
+
+**History** is kept in `localStorage` — every verification you run, with its
+verdict, re-openable later. Nothing is sent anywhere or stored server-side;
+there are no accounts to scope a server-side history to, and it survives the
+backend restarting when you rebuild the corpus.
 
 ---
 
@@ -418,13 +448,16 @@ deployment. It is a portfolio project and the scope was chosen deliberately.
 
 ```
 ingest/         Tier 1 — clean, chunk, embed, index, publish
-serve/          Tier 2 — LangGraph app
-  nodes/        gate · retrieve · websearch · stance · generate · terminal · render
+serve/          Tier 2 — LangGraph app + FastAPI
+  nodes/        adapt · language · gate · retrieve · websearch · stance ·
+                generate · terminal · render · export
 core/           the only shared surface — config, models, credibility,
                 compressors, prompts
-eval_harness/   datasets, metrics, runners, results
+frontend/       React app (Vite, JavaScript) — builds into ui/dist/
+ui/             index.html, the no-build fallback interface
+eval_harness/   datasets, metrics, runners, committed results
 demo/           run_demo.py
-tests/          13 tests on the failures that produce no error
+tests/          36 tests on the failures that produce no error
 index/          the contract — CURRENT → v1/  (gitignored)
 ```
 
