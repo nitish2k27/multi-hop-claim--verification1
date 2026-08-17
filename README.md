@@ -297,6 +297,8 @@ rebuild is a **1-second no-op** — a corpus fingerprint short-circuits it.
 
 ### Commands
 
+Full list with setup, troubleshooting and per-tier detail: [**`COMMANDS.md`**](COMMANDS.md).
+
 **Tier 1 — build the corpus index**
 
 | | |
