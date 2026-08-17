@@ -134,6 +134,23 @@ def transcribe(path: Path) -> str:
 
 # ── Image ────────────────────────────────────────────────────────────────────
 
+def _point_pytesseract_at_the_binary() -> None:
+    """
+    Apply `TESSERACT_CMD` before anything asks pytesseract to run Tesseract.
+
+    Must happen ahead of the availability probe, not just ahead of the OCR
+    call. The Windows installer does not put Tesseract on PATH, so the probe
+    fails, `ocr_unavailable()` reports the engine as missing, and the input is
+    rejected before the OCR path — and its own `tesseract_cmd` assignment —
+    is ever reached. The setting would be dead configuration.
+    """
+    if not cfg.tesseract_cmd:
+        return
+    import pytesseract
+
+    pytesseract.pytesseract.tesseract_cmd = cfg.tesseract_cmd
+
+
 def ocr_unavailable() -> str | None:
     """Reason OCR cannot run, or None. Checked before any image work."""
     try:
@@ -142,12 +159,16 @@ def ocr_unavailable() -> str | None:
     except ImportError as exc:
         return f"{exc.name} not installed — pip install pytesseract pillow"
 
+    _point_pytesseract_at_the_binary()
+
     try:
         pytesseract.get_tesseract_version()
     except Exception:
+        configured = (f"\n    TESSERACT_CMD is set to {cfg.tesseract_cmd!r}, "
+                      f"which did not run." if cfg.tesseract_cmd else "")
         return (
             "the Tesseract engine is not installed (pytesseract is only a "
-            "wrapper).\n"
+            "wrapper)." + configured + "\n"
             "    Windows: https://github.com/UB-Mannheim/tesseract/wiki\n"
             "    macOS:   brew install tesseract\n"
             "    Linux:   apt install tesseract-ocr\n"
@@ -173,8 +194,9 @@ def extract_image_text(path: Path) -> str:
     import pytesseract
     from PIL import Image
 
-    if cfg.tesseract_cmd:
-        pytesseract.pytesseract.tesseract_cmd = cfg.tesseract_cmd
+    # ocr_unavailable() above already applied TESSERACT_CMD; this is belt and
+    # braces for anyone calling this function directly.
+    _point_pytesseract_at_the_binary()
 
     with Image.open(path) as image:
         # Greyscale helps on the light-grey-on-white that social apps love.
