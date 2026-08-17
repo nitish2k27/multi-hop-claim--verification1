@@ -303,7 +303,12 @@ rebuild is a **1-second no-op** — a corpus fingerprint short-circuits it.
 |---|---|
 | `python -m ingest.run --from-csv` | build and publish an index from the CSV |
 | `python -m ingest.run --from-csv --force` | rebuild even when the corpus is unchanged |
+| `python -m ingest.run --discover-only --limit 200` | what the feeds advertise; fetches no articles |
+| `python -m ingest.run --crawl --limit 500` | crawl the feeds, then build |
+| `python -m ingest.run --crawl --merge-csv` | crawl + CSV corpus, de-duplicated |
 | `python -m ingest.run --status` | what's currently published |
+| `python -m ingest.run --list` | every index version on disk |
+| `python -m ingest.run --rollback v1` | point CURRENT back at v1 |
 
 **Tier 2 — verify**
 
@@ -330,7 +335,7 @@ rebuild is a **1-second no-op** — a corpus fingerprint short-circuits it.
 | `cd frontend && npm run build` | build into `ui/dist/`, served by FastAPI |
 | `python -m demo.run_demo` | the demo, ~80 seconds |
 | `python -m eval_harness.run_eval --all` | the full evaluation |
-| `pytest` | 36 tests, ~7s, no API calls |
+| `pytest` | 53 tests, no network, no API calls |
 
 Exit codes: `0` verified · `2` abstained · `3` rejected · `4` index problem ·
 `5` API quota.
@@ -353,41 +358,140 @@ python -m ingest.run --from-csv     # reads data/processed/news_articles_rag.csv
 regional Indian outlets in Hindi, Tamil, Telugu, Bengali and Malayalam. It is
 grouped by domain and is plain data, not code.
 
-### Live crawling is not built yet
+### Why crawling exists: the date problem
 
-`ingest/discover.py` and `ingest/fetch.py` do not exist. `--from-csv` is
-currently the only path into the index. This is stated plainly because it is the
-gap that produces the project's largest limitation:
+**96% of publish dates in the CSV corpus are fabricated.** 1,622 of 1,687
+articles carry placeholder January-1 dates, invented at scrape time by a
+URL-parsing heuristic in the original scraper. They are not recoverable from the
+CSV. Every chunk carries `date_reliable: false`, the manifest records it, and
+credibility scoring **drops the recency term entirely** — reweighting to
+domain 0.7 / type 0.3 rather than letting a fabricated date drive 30% of a score.
 
-**96% of publish dates are fabricated.** 1,622 of 1,687 articles carry
-placeholder January-1 dates, introduced at scrape time by a URL-parsing
-heuristic in the original scraper. They are not recoverable from the CSV. Every
-chunk carries `date_reliable: false`, the manifest records it, and credibility
-scoring **drops the recency term entirely** and reweights to domain 0.7 / type
-0.3 rather than letting a fabricated date drive 30% of a score.
+RSS entries carry a `published` field supplied by the publisher. That is the
+whole reason the crawl path exists: real dates instead of guesses, and recency
+back as a usable signal.
 
-A real crawl would fix this at the source: RSS entries carry a `published` field
-from the publisher, so dates would be genuine rather than guessed, and recency
-could re-enter credibility scoring as a real signal.
-
-The intended shape, when it is built:
+### The pipeline
 
 ```
 sources.yaml  →  discover.py  →  fetch.py  →  clean.py  →  chunk.py  →  index.py
   363 feeds      feedparser      trafilatura   (existing pipeline, unchanged)
-                 · new URLs      · article text
-                 · real dates    · boilerplate stripped
+                 1 req/feed      1 req/article
+                 · URLs          · article text
+                 · REAL dates    · boilerplate stripped
 ```
 
-Both libraries are free and need no API key. `feedparser` parses the feeds;
-`trafilatura` extracts article text from HTML and consistently beats
-hand-written BeautifulSoup selectors, which break whenever a publisher changes
-their template. Neither is installed yet.
+Discovery and fetching are separate on purpose: discovery is one request per
+*feed*, fetching is one per *article*. A discovery run can be inspected and
+filtered before committing to thousands of fetches.
 
-The tier split is what makes this a self-contained addition: crawling writes to
-`index/v{n}/` and flips `index/CURRENT` when it validates. `serve/` reads
-`CURRENT` and knows nothing about where the documents came from, so the crawler
-can be built, run and re-run **while the API keeps serving the previous index**.
+```bash
+# See what the feeds advertise. Fetches no article bodies.
+python -m ingest.run --discover-only --limit 200
+
+# Crawl and build. Nothing touches the live index until the build validates.
+python -m ingest.run --crawl --limit 500
+
+# Crawl AND keep the existing CSV corpus, de-duplicated.
+python -m ingest.run --crawl --merge-csv
+```
+
+| Flag | |
+|---|---|
+| `--limit N` | stop after N articles |
+| `--per-feed N` | take at most N from each feed — keeps one prolific outlet from dominating |
+| `--delay S` | minimum gap between requests to one host (default 1.0s) |
+| `--merge-csv` | union the crawl with the CSV corpus |
+| `--force` | rebuild even when the fingerprint is unchanged |
+
+### How a rebuild merges with the existing corpus
+
+A build is **never an in-place edit**. Every run writes a complete new
+`index/v{n}/` and leaves the live one untouched:
+
+```
+index/
+  CURRENT      a text file containing "v1"
+  v1/          the live index, being served right now
+  v2/          the new build — invisible until CURRENT says otherwise
+```
+
+So "merging with the existing corpus" means merging *records*, not index files.
+The union happens before anything is embedded:
+
+```
+crawl records ─┐
+               ├─> merge_records() ─> chunk ─> build v2 ─> validate ─> publish
+CSV records ───┘   dedup by URL,
+                   then by body text
+```
+
+**Order is priority order,** and the crawl goes first: when the same article
+arrives from both sources, the crawled copy wins because it has a real date and
+its CSV twin has a placeholder.
+
+De-duplication runs on two keys. URL catches the same article from two feeds.
+**Body text** catches the same wire story republished under different URLs —
+that one matters more than it looks, because three copies of one Reuters piece
+would otherwise read as three independent sources corroborating a claim.
+
+Because the whole record set is rebuilt each time, a build is reproducible from
+its inputs and no state accumulates or drifts. The trade-off: a crawl you want
+to keep must be re-merged with `--merge-csv` on later runs — a crawl-only build
+does not inherit the CSV corpus just because `v1` had it.
+
+### Rollback
+
+`index/CURRENT` is a text file whose entire contents are a version name.
+Publishing is one atomic write; rolling back is the same write with an older
+name.
+
+```bash
+python -m ingest.run --list           # every version, with CURRENT marked
+python -m ingest.run --rollback v1    # CURRENT now reads "v1"
+```
+
+Restart Tier 2 and it serves the old index again. Nothing is deleted, nothing
+is copied, and the bad build stays on disk to inspect.
+
+Three things make that safe:
+
+- **A build that raises deletes its own directory**, so a half-written index
+  can never be rolled forward to by accident.
+- **A build is validated before publishing** — presence, non-emptiness, a real
+  smoke query, and a BM25 pickle round-trip. An index that exists but retrieves
+  nothing is the failure that otherwise surfaces as "the model can't answer
+  anything". `--rollback` re-runs the same validation before switching, because
+  falling back to a broken index turns one bad deploy into two.
+- **The manifest records the embedding model and dimension**, and Tier 2
+  refuses to boot on a mismatch. Rolling back to an index built with a
+  different embedder fails loudly at startup rather than silently returning
+  nonsense.
+
+Old versions cost disk and nothing else. Delete them by hand when you're sure.
+
+### Crawling politely
+
+It hits ~130 real news domains that owe us nothing, so `ingest/fetch.py`:
+
+- honours **`robots.txt`**, fetched once per host and cached, and obeys a
+  declared `Crawl-delay` when it is longer than `--delay`,
+- spaces requests **per host**, so 130 domains aren't serialised behind one
+  slow site and no single site is hammered,
+- sends a **User-Agent that identifies the project** and links to this
+  repository, so an administrator seeing it in a log can find out what it is,
+- drops non-HTML responses without reading the body, caps reads at 4 MB, and
+  skips failures rather than retrying in a tight loop.
+
+A host whose `robots.txt` cannot be fetched is treated as allowing the crawl —
+absence of a policy is not a prohibition.
+
+### Status
+
+The code is written and tested (17 tests, no network). **It has not been run
+against live feeds**, so the published `v1` index is still the CSV corpus with
+its placeholder dates. `--discover-only` is the cheap way to start: one request
+per feed, and it reports what fraction of articles carry a real publisher date.
 
 ---
 
@@ -551,10 +655,11 @@ OCR are plain Python; not everything needs a framework.
 
 Stated plainly, because they affect how the numbers should be read.
 
-**Publish dates are fabricated.** 96% of articles carry placeholder January-1
-dates. Credibility scoring drops the recency term rather than trusting them.
-See [The corpus, and crawling](#the-corpus-and-crawling) — a real crawl fixes
-this at the source and is the next planned build.
+**Publish dates in the shipped index are fabricated.** 96% of articles carry
+placeholder January-1 dates, so credibility scoring drops the recency term
+rather than trusting them. The crawl path fixes this at the source and is
+written and tested, but has not been run against live feeds — see
+[The corpus, and crawling](#the-corpus-and-crawling).
 
 **The corpus is the wrong shape for general fact-checking.** 1,687 RSS articles,
 heavily tech and entertainment. It cannot answer questions about history,
@@ -587,7 +692,8 @@ deployment. It is a portfolio project and the scope was chosen deliberately.
 ```
 core/           the only shared surface — config, models, llm, prompts,
                 credibility, compressors, text
-ingest/         TIER 1 — clean · chunk · index · run          (write-only)
+ingest/         TIER 1 — discover · fetch · clean · chunk · index · run
+                                                              (write-only)
                 sources.yaml   363 RSS/Atom feeds, 130 domains
 serve/          TIER 2 — LangGraph app + FastAPI              (read-only)
                 api.py  cli.py  graph.py  retriever.py  schemas.py
@@ -598,7 +704,7 @@ ui/             index.html — the no-build fallback interface
 eval_harness/   datasets, metrics, runners, committed results
 docs/           execution-trace.html — one claim, file by file, line by line
 demo/           run_demo.py
-tests/          36 tests on the failures that produce no error
+tests/          53 tests on the failures that produce no error
 notebooks/      the training notebooks for the two BERTs
 scripts/        cleanup.py · push_to_hub.py
 

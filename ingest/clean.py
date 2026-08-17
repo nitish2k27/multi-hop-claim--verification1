@@ -170,6 +170,54 @@ def load_csv(path, stats: CleanStats) -> Iterator[dict]:
         }
 
 
+def merge_records(
+    *streams: Iterator[dict],
+    stats: CleanStats | None = None,
+) -> Iterator[dict]:
+    """
+    Union several record streams into one, de-duplicated across all of them.
+
+    **Order is the priority order.** The first stream to claim a URL or a body
+    of text wins, and later duplicates are dropped. `ingest.run` passes the
+    crawl stream first for exactly one reason: a crawled record carries a real
+    publisher date and its CSV twin carries a fabricated January-1 placeholder,
+    so when the same article reaches us both ways we want the crawled copy.
+
+    De-duplication runs on two keys, and both are needed:
+
+      * **URL** — the same article discovered by two different feeds.
+      * **body text** — the same wire story republished under different URLs.
+        This one matters more than it looks: three copies of one Reuters piece
+        would otherwise appear as three independent sources corroborating a
+        claim, which is precisely the failure this system exists to avoid.
+
+    Note this is a *set union*, not an incremental update. See the "How a
+    rebuild merges" section of ingest/run.py — a build always writes a complete
+    new index from the complete record set.
+    """
+    seen_urls: set[str] = set()
+    seen_content: set[str] = set()
+
+    for stream in streams:
+        for record in stream:
+            url = (record.get("url") or "").strip()
+            if url and url in seen_urls:
+                if stats is not None:
+                    stats.dropped_dupe_url += 1
+                continue
+
+            content_key = sha256_id(record.get("text", ""))
+            if content_key in seen_content:
+                if stats is not None:
+                    stats.dropped_dupe_content += 1
+                continue
+
+            if url:
+                seen_urls.add(url)
+            seen_content.add(content_key)
+            yield record
+
+
 def summarise(stats: CleanStats) -> str:
     top = sorted(stats.sources.items(), key=lambda kv: -kv[1])[:5]
     return (
