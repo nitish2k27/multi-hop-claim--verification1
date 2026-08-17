@@ -8,7 +8,7 @@ evidence isn't there.
 
 ```bash
 python -m serve.cli "India's software exports reached 222 billion dollars in 2024-25"
-#  → TRUE, 70% confidence, 3 sources cited
+#  → TRUE, 92% confidence, 3 sources cited, 1 LLM call
 
 python -m serve.cli "the moon is square in shape"
 #  → ABSTAINED. Zero LLM calls. Nothing cleared the relevance floor.
@@ -141,6 +141,13 @@ a claim in an Instagram or WhatsApp post, screenshot it, paste it in with
 question you actually have — *is this even a checkable factual claim, or is it
 opinion, a joke, or engagement bait?* Only then does verification run.
 
+```
+insta_post.png     → OCR: "India's software exports reached 222 billion
+                       dollars in 2024-25"        → TRUE @ 80%, 2 sources
+insta_opinion.png  → OCR: "what time does the match start tonight?"
+                                                 → rejected, 0 LLM calls, 1.0s
+```
+
 **A Hindi claim is not translated back.** It is translated *into* English to
 search an English index, and the report is then **generated in Hindi** by the
 model. One generation, one verdict — a back-translated report drifts from the
@@ -161,6 +168,9 @@ obvious way to fool a fact-checker, so an upload:
 - still goes through the same relevance floor, so an irrelevant upload is
   dropped rather than padding the evidence list.
 
+A DOCX asserting *"India's software exports reached 40 billion dollars in
+2024-25"* returns **FALSE at 85%** — the corpus refutes the attachment.
+
 ---
 
 ## Architecture
@@ -172,7 +182,7 @@ TIER 1 · ingest/                    TIER 2 · serve/
 run on demand, offline              runs while you demo
 write-only                          read-only
 
-clean → chunk → embed → index       gate → retrieve → stance → generate
+clean → chunk → embed → index       adapt → gate → retrieve → generate
             │                                    ↑
             ▼                                    │
     ┌───────────────────────┐   reads            │
@@ -196,12 +206,16 @@ is fifteen lines that catch the single most common silent RAG failure.
 
 ### The serving graph
 
-Generated from the running code with `python -m serve.cli --graph`, so it cannot
-drift from what the system does.
+Nodes and edges are generated from the running code — run
+`python -m serve.cli --graph` to print the current diagram, so this cannot
+silently drift from what the system does. Only the edge *labels* below are
+added by hand, for readability.
 
 ```mermaid
 graph TD;
 	__start__([__start__]):::first
+	adapt(adapt)
+	translate(translate)
 	gate(gate)
 	retrieve(retrieve)
 	web(web)
@@ -211,11 +225,15 @@ graph TD;
 	reject(reject)
 	render(render)
 	__end__([__end__]):::last
-	__start__ --> gate;
+	__start__ --> adapt;
+	adapt -.->|unreadable input| reject;
+	adapt -.->|text extracted| translate;
+	translate --> gate;
 	gate -.->|not a claim| reject;
 	gate -.->|claim| retrieve;
 	retrieve -.->|evidence| stance;
 	retrieve -.->|nothing above floor| web;
+	retrieve -.->|web disabled| abstain;
 	web -.->|evidence| stance;
 	web -.->|still nothing| abstain;
 	stance --> generate;
@@ -235,6 +253,11 @@ the LLM reasons well over. Reranking before expansion matters: the cross-encoder
 also truncates at 512 tokens, so reranking full articles would reintroduce the
 exact bug the chunking fixed.
 
+Want the whole path in detail? [**`docs/execution-trace.html`**](docs/execution-trace.html)
+follows one claim from the browser keystroke to the rendered report, naming
+every file, function and line number on the way, with the real numbers each
+stage produced.
+
 ---
 
 ## Quickstart
@@ -242,7 +265,8 @@ exact bug the chunking fixed.
 **Prerequisites:** Python 3.11+, ~2 GB disk, no GPU.
 
 ```bash
-git clone <this-repo> && cd fact-verification-system2
+git clone https://github.com/nitish2k27/multi-hop-claim--verification1.git
+cd multi-hop-claim--verification1/fact-verification-system2
 
 python -m venv venv
 venv\Scripts\activate            # Windows
@@ -250,37 +274,61 @@ venv\Scripts\activate            # Windows
 
 pip install -e .
 
-cp .env.example .env             # then paste a Groq key (free)
+copy .env.example .env           # Windows  (cp on macOS/Linux)
 ```
 
-Get a free Groq key at [console.groq.com/keys](https://console.groq.com/keys).
+Then open `.env` and set **`GROQ_API_KEY`** — free at
+[console.groq.com/keys](https://console.groq.com/keys). Everything else has a
+working default.
 
-**Obtain the trained models** — two fine-tuned BERTs, ~870 MB, too large for
-git. See [Models](#models) below.
+> **You also need the two trained BERTs** (~831 MB, too large for git). They are
+> not yet published; see [Models](#models).
 
 ```bash
-python -m ingest.run --from-csv   # build the index (~13 min first run, then 1s)
+# first run only — lets the two automatic models download
+HF_OFFLINE=false python -m ingest.run --from-csv
+
 python -m serve.cli "India's software exports reached 222 billion dollars in 2024-25"
 python -m demo.run_demo           # the full demo, ~80 seconds
 ```
 
+Building the index takes ~13 minutes the first time. After that an unchanged
+rebuild is a **1-second no-op** — a corpus fingerprint short-circuits it.
+
 ### Commands
+
+**Tier 1 — build the corpus index**
 
 | | |
 |---|---|
-| `python -m ingest.run --from-csv` | build and publish an index |
+| `python -m ingest.run --from-csv` | build and publish an index from the CSV |
+| `python -m ingest.run --from-csv --force` | rebuild even when the corpus is unchanged |
 | `python -m ingest.run --status` | what's currently published |
+
+**Tier 2 — verify**
+
+| | |
+|---|---|
 | `python -m serve.cli "claim"` | verify a claim |
 | `python -m serve.cli --trace "claim"` | with per-node progress |
 | `python -m serve.cli --json "claim"` | structured output |
 | `python -m serve.cli --no-web "claim"` | index only, no web fallback |
+| `python -m serve.cli --graph` | print the mermaid diagram |
 | `python -m serve.cli clip.mp3` | verify a voice note |
 | `python -m serve.cli shot.png` | verify a screenshot (needs Tesseract) |
 | `python -m serve.cli --document f.pdf "claim"` | check a claim against a file |
 | `python -m serve.cli --export html,docx "claim"` | also write those formats |
-| `uvicorn serve.api:app` | web UI at `127.0.0.1:8000` |
-| `cd frontend && npm run dev` | React dev server with hot reload |
-| `python -m demo.run_demo` | the demo |
+
+**Serving and development**
+
+| | |
+|---|---|
+| `uvicorn serve.api:app` | web UI + API at `127.0.0.1:8000` |
+| `uvicorn serve.api:app --reload` | with auto-reload on code changes |
+| `cd frontend && npm install` | install the React dependencies (once) |
+| `cd frontend && npm run dev` | React dev server, hot reload on `:5173` |
+| `cd frontend && npm run build` | build into `ui/dist/`, served by FastAPI |
+| `python -m demo.run_demo` | the demo, ~80 seconds |
 | `python -m eval_harness.run_eval --all` | the full evaluation |
 | `pytest` | 36 tests, ~7s, no API calls |
 
@@ -289,40 +337,114 @@ Exit codes: `0` verified · `2` abstained · `3` rejected · `4` index problem �
 
 ---
 
+## The corpus, and crawling
+
+The index is built from **1,687 news articles** collected from RSS feeds. Today
+that corpus is frozen in a CSV and rebuilt from it:
+
+```bash
+python -m ingest.run --from-csv     # reads data/processed/news_articles_rag.csv
+```
+
+### The feed list
+
+[`ingest/sources.yaml`](ingest/sources.yaml) holds **363 RSS/Atom feeds across
+130 domains** — BBC, Reuters, The Hindu, Economic Times, Ars Technica, plus
+regional Indian outlets in Hindi, Tamil, Telugu, Bengali and Malayalam. It is
+grouped by domain and is plain data, not code.
+
+### Live crawling is not built yet
+
+`ingest/discover.py` and `ingest/fetch.py` do not exist. `--from-csv` is
+currently the only path into the index. This is stated plainly because it is the
+gap that produces the project's largest limitation:
+
+**96% of publish dates are fabricated.** 1,622 of 1,687 articles carry
+placeholder January-1 dates, introduced at scrape time by a URL-parsing
+heuristic in the original scraper. They are not recoverable from the CSV. Every
+chunk carries `date_reliable: false`, the manifest records it, and credibility
+scoring **drops the recency term entirely** and reweights to domain 0.7 / type
+0.3 rather than letting a fabricated date drive 30% of a score.
+
+A real crawl would fix this at the source: RSS entries carry a `published` field
+from the publisher, so dates would be genuine rather than guessed, and recency
+could re-enter credibility scoring as a real signal.
+
+The intended shape, when it is built:
+
+```
+sources.yaml  →  discover.py  →  fetch.py  →  clean.py  →  chunk.py  →  index.py
+  363 feeds      feedparser      trafilatura   (existing pipeline, unchanged)
+                 · new URLs      · article text
+                 · real dates    · boilerplate stripped
+```
+
+Both libraries are free and need no API key. `feedparser` parses the feeds;
+`trafilatura` extracts article text from HTML and consistently beats
+hand-written BeautifulSoup selectors, which break whenever a publisher changes
+their template. Neither is installed yet.
+
+The tier split is what makes this a self-contained addition: crawling writes to
+`index/v{n}/` and flips `index/CURRENT` when it validates. `serve/` reads
+`CURRENT` and knows nothing about where the documents came from, so the crawler
+can be built, run and re-run **while the API keeps serving the previous index**.
+
+---
+
 ## Models
 
-Four models run locally on CPU (~1 GB, ~10s cold start). Two are fine-tuned and
-ship separately because of their size:
+Four models run locally on CPU (~1 GB, ~10s cold start).
 
 | Model | Purpose | Source |
 |---|---|---|
 | `all-MiniLM-L6-v2` | embeddings | HuggingFace, downloaded automatically |
 | `ms-marco-MiniLM-L-6-v2` | cross-encoder reranker | HuggingFace, automatic |
-| **claim detector** | BERT, fine-tuned on 280k FEVER examples | see below |
-| **stance detector** | BERT, fine-tuned on 208k FEVER-NLI pairs | see below |
+| **claim detector** | BERT fine-tuned on 280k FEVER examples | not in this repo |
+| **stance detector** | BERT fine-tuned on 208k FEVER-NLI pairs | not in this repo |
 
-<!-- TODO: publish the two fine-tuned models and replace this block with the
-     download command. HuggingFace Hub is free and the models become a portfolio
-     artifact in their own right. -->
+The two fine-tuned models total **831 MB** and are gitignored. Place them at
+`models/claim_detector/final/` and `models/stance_detector/final/`, or point
+`CLAIM_DETECTOR_PATH` / `STANCE_DETECTOR_PATH` in `.env` at wherever they live.
 
-Place them at `models/claim_detector/final/` and `models/stance_detector/final/`.
-Training notebooks are in [`notebooks/`](notebooks/) if you'd rather retrain.
+**There is no silent fallback.** `core/models.py` raises with the missing path
+rather than quietly substituting a stock checkpoint — a system that reports a
+verdict from a model you did not train is worse than one that refuses to start.
 
-Set `HF_OFFLINE=false` for the first run so the two automatic models can
-download, then leave it `true`.
+Training notebooks are in [`notebooks/`](notebooks/) if you would rather
+retrain. To publish them to the HuggingFace Hub,
+[`scripts/push_to_hub.py`](scripts/push_to_hub.py) generates model cards from
+`results.json` and uploads both:
 
-**Image input additionally needs Tesseract**, which is a system binary rather
-than a pip package:
+```bash
+hf auth login                                        # token with write scope
+python scripts/push_to_hub.py --user YOUR_HF_NAME --dry-run
+python scripts/push_to_hub.py --user YOUR_HF_NAME
+```
+
+`HF_OFFLINE` defaults to `true`. Set it to `false` for the first run on a
+machine with a cold model cache so the two automatic models can download, then
+leave it alone.
+
+### Image input needs Tesseract
+
+It is a system binary, not a pip package — `pytesseract` is only a wrapper.
 
 | | |
 |---|---|
-| Windows | [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki) |
+| Windows | `winget install --id UB-Mannheim.TesseractOCR -e` |
 | macOS | `brew install tesseract` |
 | Linux | `apt install tesseract-ocr` |
 
-Then add it to `PATH`, or set `TESSERACT_CMD` in `.env`. **Every other input
-type works without it** — image upload reports that OCR is unavailable and
-nothing else is affected.
+**On Windows the installer does not add it to `PATH`.** Set the full path in
+`.env` instead:
+
+```
+TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
+```
+
+**Every other input type works without it** — `/health` reports OCR as
+unavailable, image uploads are rejected with instructions, and nothing else is
+affected.
 
 ---
 
@@ -332,8 +454,8 @@ A small React app (JavaScript, no TypeScript) in [`frontend/`](frontend/). No
 accounts, no auth — it is a single-user local tool.
 
 ```bash
-uvicorn serve.api:app                 # backend on :8000, serves the built UI
-cd frontend && npm install && npm run dev   # optional: hot reload on :5173
+uvicorn serve.api:app                        # backend on :8000, serves the built UI
+cd frontend && npm install && npm run dev    # optional: hot reload on :5173
 ```
 
 **How it connects to FastAPI.** In development the Vite dev server proxies
@@ -352,6 +474,15 @@ end. Adding a node to the pipeline adds a step to the UI with no other change.
 verdict, re-openable later. Nothing is sent anywhere or stored server-side;
 there are no accounts to scope a server-side history to, and it survives the
 backend restarting when you rebuild the corpus.
+
+`GET /health` reports what the deployment can actually accept, and the UI's
+controls follow it:
+
+```json
+{ "index": "v1", "documents": 1687, "web_search": true,
+  "capabilities": { "text": true, "voice": true, "image": true,
+                    "document": true, "web_search": true } }
+```
 
 ---
 
@@ -380,18 +511,7 @@ failure quoted back, then removal with the removal disclosed in the report.
 and weakest on REFUTES — probed by hand it called a direct contradiction
 SUPPORTS at 0.52 confidence. So its confidence travels with each label and the
 prompt instructs the model to follow the evidence text wherever the two
-disagree. In the demo run it overrides the stance model on roughly a third of
-items.
-
-### Follow one claim all the way through
-
-[**`docs/execution-trace.html`**](docs/execution-trace.html) traces a single
-claim — *"India's software exports reached 222 billion dollars in 2024-25"* —
-from the keystroke in the browser to the rendered report, naming every file,
-function and line number on the path, with the real numbers each stage
-produced: 35 candidates → 8 after reranking → 5 above the floor → 3 articles
-after parent expansion → `TRUE` at 92% confidence, one LLM call, 22.5 seconds
-cold (5.2 s warm, through the API).
+disagree.
 
 ---
 
@@ -404,16 +524,26 @@ cold (5.2 s warm, through the API).
 · **Chroma** — vector store · **rank-bm25** — sparse retrieval
 · **sentence-transformers** — embeddings + reranker
 · **transformers** — the two fine-tuned BERTs
-· **Groq** — `openai/gpt-oss-120b`
+· **Groq** — `openai/gpt-oss-120b`, `whisper-large-v3`
 · **Tavily** — web fallback · **pydantic-settings** — config
+· **React 18 + Vite** — the frontend
 
 Chosen for retriever composition and structured output specifically:
 `DocumentCompressorPipeline` chains reranking, the relevance floor and
 credibility scoring into one object the retriever calls, and
 `with_structured_output` makes the verdict a validated model rather than
 something regexed out of prose — which was a real bug in the first version,
-where the exported report could contradict the API response. Crawling and file
-rendering are plain Python; not everything needs a framework.
+where the exported report could contradict the API response. File rendering and
+OCR are plain Python; not everything needs a framework.
+
+> **The LLM is swappable, and that has been tested the hard way.** Groq retired
+> `llama-3.3-70b-versatile` mid-session on 2026-08-17 — it answered a request at
+> 13:59 and returned `404 model_not_found` at 14:17. Moving to
+> `openai/gpt-oss-120b` was one line in `.env`, because the model sits behind
+> `get_llm()` and its output is constrained to a Pydantic schema.
+> `core/llm.py` verifies the configured models against `GET /openai/v1/models`
+> at startup, so a retirement surfaces as a clear boot error rather than a
+> failed request seven nodes deep.
 
 ---
 
@@ -421,12 +551,10 @@ rendering are plain Python; not everything needs a framework.
 
 Stated plainly, because they affect how the numbers should be read.
 
-**Publish dates are fabricated.** 1,622 of 1,687 articles (96%) carry
-placeholder January-1 dates, introduced at scrape time by a URL-parsing
-heuristic. They are not recoverable. Every chunk carries `date_reliable: false`,
-the manifest records it, and credibility scoring drops the recency term and
-reweights to domain 0.7 / type 0.3 rather than letting a fabricated date drive
-30% of a score.
+**Publish dates are fabricated.** 96% of articles carry placeholder January-1
+dates. Credibility scoring drops the recency term rather than trusting them.
+See [The corpus, and crawling](#the-corpus-and-crawling) — a real crawl fixes
+this at the source and is the next planned build.
 
 **The corpus is the wrong shape for general fact-checking.** 1,687 RSS articles,
 heavily tech and entertainment. It cannot answer questions about history,
@@ -457,24 +585,30 @@ deployment. It is a portfolio project and the scope was chosen deliberately.
 ## Repository layout
 
 ```
-ingest/         Tier 1 — clean, chunk, embed, index, publish
-                sources.yaml — 363 RSS/Atom feeds across 130 domains
-serve/          Tier 2 — LangGraph app + FastAPI       ← the backend
-  nodes/        adapt · language · gate · retrieve · websearch · stance ·
-                generate · terminal · render · export
-core/           the only shared surface — config, models, credibility,
-                compressors, prompts
-frontend/       React app (Vite, JavaScript)           ← the frontend
-ui/             index.html, the no-build fallback; dist/ is the React build
+core/           the only shared surface — config, models, llm, prompts,
+                credibility, compressors, text
+ingest/         TIER 1 — clean · chunk · index · run          (write-only)
+                sources.yaml   363 RSS/Atom feeds, 130 domains
+serve/          TIER 2 — LangGraph app + FastAPI              (read-only)
+                api.py  cli.py  graph.py  retriever.py  schemas.py
+  nodes/        adapt · language · gate · retrieve · websearch ·
+                stance · generate · terminal · render · export
+frontend/       React app (Vite, JavaScript)  →  builds into ui/dist/
+ui/             index.html — the no-build fallback interface
 eval_harness/   datasets, metrics, runners, committed results
-docs/           execution-trace.html — one claim, file by file
+docs/           execution-trace.html — one claim, file by file, line by line
 demo/           run_demo.py
 tests/          36 tests on the failures that produce no error
 notebooks/      the training notebooks for the two BERTs
-index/          the contract — CURRENT → v1/  (gitignored)
+scripts/        cleanup.py · push_to_hub.py
+
+index/          THE CONTRACT — CURRENT → v1/                  (gitignored)
+models/         the two fine-tuned BERTs, 831 MB              (gitignored)
+data/           corpus CSV, training provenance, embed cache  (gitignored)
 ```
 
-`serve/` imports nothing from `ingest/`. There's a test that enforces it.
+**`serve/` imports nothing from `ingest/`.** They communicate only through the
+files in `index/`, and there is a test that enforces it.
 
 The Python packages sit at the repo root rather than under a `backend/`
 wrapper: `serve/` is the backend and `frontend/` is the frontend, so the
