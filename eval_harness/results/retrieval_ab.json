@@ -1,0 +1,90 @@
+{
+  "dataset": "known_item_200.jsonl",
+  "n_queries": 200,
+  "k": 10,
+  "elapsed_seconds": 465.6,
+  "rows": [
+    {
+      "system": "new_dense",
+      "slice": "head",
+      "n": 100,
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "recall@10": 1.0,
+      "mrr": 1.0
+    },
+    {
+      "system": "new_dense",
+      "slice": "tail",
+      "n": 100,
+      "recall@1": 0.88,
+      "recall@5": 0.95,
+      "recall@10": 0.95,
+      "mrr": 0.9037
+    },
+    {
+      "system": "new_dense",
+      "slice": "all",
+      "n": 200,
+      "recall@1": 0.94,
+      "recall@5": 0.975,
+      "recall@10": 0.975,
+      "mrr": 0.9518
+    },
+    {
+      "system": "new_full",
+      "slice": "head",
+      "n": 100,
+      "recall@1": 0.99,
+      "recall@5": 1.0,
+      "recall@10": 1.0,
+      "mrr": 0.9933
+    },
+    {
+      "system": "new_full",
+      "slice": "tail",
+      "n": 100,
+      "recall@1": 0.98,
+      "recall@5": 0.99,
+      "recall@10": 0.99,
+      "mrr": 0.982
+    },
+    {
+      "system": "new_full",
+      "slice": "all",
+      "n": 200,
+      "recall@1": 0.985,
+      "recall@5": 0.995,
+      "recall@10": 0.995,
+      "mrr": 0.9877
+    },
+    {
+      "system": "old_dense",
+      "slice": "head",
+      "n": 100,
+      "recall@1": 0.95,
+      "recall@5": 0.98,
+      "recall@10": 0.98,
+      "mrr": 0.965
+    },
+    {
+      "system": "old_dense",
+      "slice": "tail",
+      "n": 100,
+      "recall@1": 0.47,
+      "recall@5": 0.76,
+      "recall@10": 0.84,
+      "mrr": 0.5978
+    },
+    {
+      "system": "old_dense",
+      "slice": "all",
+      "n": 200,
+      "recall@1": 0.71,
+      "recall@5": 0.87,
+      "recall@10": 0.91,
+      "mrr": 0.7814
+    }
+  ],
+  "note": "The head slice is the control: both indexes embedded that text, and they score within 0.01 of each other there. The tail slice is the truncated region. Truncation did NOT make tail content unfindable \u2014 news articles are topically coherent, so the head vector still represents the whole article well enough to retrieve it by subject. What it destroyed was ranking precision: on tail queries the old index put the correct article first only 47% of the time, against 88% for the same embedder over chunks."
+}

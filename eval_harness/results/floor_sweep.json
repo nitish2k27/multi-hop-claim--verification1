@@ -1,0 +1,227 @@
+{
+  "n_known": 200,
+  "n_adversarial": 20,
+  "current_floor": 0.15,
+  "rows": [
+    {
+      "floor": 0.02,
+      "known_item_retention": 1.0,
+      "adversarial_abstain_precision": 0.7
+    },
+    {
+      "floor": 0.05,
+      "known_item_retention": 1.0,
+      "adversarial_abstain_precision": 0.7
+    },
+    {
+      "floor": 0.08,
+      "known_item_retention": 1.0,
+      "adversarial_abstain_precision": 0.7
+    },
+    {
+      "floor": 0.1,
+      "known_item_retention": 1.0,
+      "adversarial_abstain_precision": 0.75
+    },
+    {
+      "floor": 0.12,
+      "known_item_retention": 1.0,
+      "adversarial_abstain_precision": 0.75
+    },
+    {
+      "floor": 0.15,
+      "known_item_retention": 0.995,
+      "adversarial_abstain_precision": 0.75
+    },
+    {
+      "floor": 0.2,
+      "known_item_retention": 0.995,
+      "adversarial_abstain_precision": 0.75
+    },
+    {
+      "floor": 0.25,
+      "known_item_retention": 0.995,
+      "adversarial_abstain_precision": 0.8
+    },
+    {
+      "floor": 0.3,
+      "known_item_retention": 0.995,
+      "adversarial_abstain_precision": 0.8
+    },
+    {
+      "floor": 0.35,
+      "known_item_retention": 0.995,
+      "adversarial_abstain_precision": 0.8
+    },
+    {
+      "floor": 0.4,
+      "known_item_retention": 0.995,
+      "adversarial_abstain_precision": 0.8
+    },
+    {
+      "floor": 0.5,
+      "known_item_retention": 0.995,
+      "adversarial_abstain_precision": 0.8
+    },
+    {
+      "floor": 0.6,
+      "known_item_retention": 0.995,
+      "adversarial_abstain_precision": 0.85
+    }
+  ],
+  "gold_score_percentiles": {
+    "p1": 0.916,
+    "p5": 0.999,
+    "p10": 0.9995,
+    "p25": 0.9998,
+    "p50": 0.9999
+  },
+  "adversarial_detail": [
+    {
+      "id": "adv-17",
+      "category": "near_miss",
+      "claim": "OpenAI was founded in 2010 as a for-profit hardware company.",
+      "top_relevance": 0.8579
+    },
+    {
+      "id": "adv-16",
+      "category": "near_miss",
+      "claim": "Netflix reported 500 million paying subscribers in 2023.",
+      "top_relevance": 0.7945
+    },
+    {
+      "id": "adv-15",
+      "category": "near_miss",
+      "claim": "TechCrunch was founded in 1998 by Michael Arrington.",
+      "top_relevance": 0.6468
+    },
+    {
+      "id": "adv-14",
+      "category": "near_miss",
+      "claim": "Apple sold exactly 41 million iPhones in the first quarter of 2019.",
+      "top_relevance": 0.5934
+    },
+    {
+      "id": "adv-18",
+      "category": "near_miss",
+      "claim": "Bitcoin traded above 500,000 US dollars in March 2024.",
+      "top_relevance": 0.2017
+    },
+    {
+      "id": "adv-20",
+      "category": "near_miss",
+      "claim": "Infosys relocated its global headquarters from Bengaluru to Chennai in 2022.",
+      "top_relevance": 0.0967
+    },
+    {
+      "id": "adv-13",
+      "category": "near_miss",
+      "claim": "India's GDP contracted by 12 percent during the 2019 fiscal year.",
+      "top_relevance": 0.0064
+    },
+    {
+      "id": "adv-12",
+      "category": "absent_false",
+      "claim": "The population of Reykjavik exceeded two million people in 2024.",
+      "top_relevance": 0.0058
+    },
+    {
+      "id": "adv-11",
+      "category": "absent_false",
+      "claim": "Sweden adopted the euro as its official currency in 2023.",
+      "top_relevance": 0.0031
+    },
+    {
+      "id": "adv-10",
+      "category": "absent_false",
+      "claim": "Vitamin C reliably cures the common cold within 24 hours.",
+      "top_relevance": 0.0029
+    },
+    {
+      "id": "adv-02",
+      "category": "absurd",
+      "claim": "Water boils at 40 degrees Celsius at sea level.",
+      "top_relevance": 0.0006
+    },
+    {
+      "id": "adv-08",
+      "category": "absent_true",
+      "claim": "The human genome contains roughly 20,000 protein-coding genes.",
+      "top_relevance": 0.0006
+    },
+    {
+      "id": "adv-19",
+      "category": "near_miss",
+      "claim": "The Guardian newspaper published its first edition in 1921.",
+      "top_relevance": 0.0002
+    },
+    {
+      "id": "adv-03",
+      "category": "absurd",
+      "claim": "The Pacific Ocean is smaller than Lake Superior.",
+      "top_relevance": 0.0001
+    },
+    {
+      "id": "adv-04",
+      "category": "absurd",
+      "claim": "Adult humans have three hearts and two spines.",
+      "top_relevance": 0.0001
+    },
+    {
+      "id": "adv-05",
+      "category": "absent_true",
+      "claim": "The Treaty of Westphalia was signed in 1648.",
+      "top_relevance": 0.0001
+    },
+    {
+      "id": "adv-06",
+      "category": "absent_true",
+      "claim": "Napoleon Bonaparte was born on the island of Corsica.",
+      "top_relevance": 0.0001
+    },
+    {
+      "id": "adv-07",
+      "category": "absent_true",
+      "claim": "Insulin was first isolated at the University of Toronto in 1921.",
+      "top_relevance": 0.0001
+    },
+    {
+      "id": "adv-09",
+      "category": "absent_false",
+      "claim": "The Great Wall of China is visible from the Moon with the naked eye.",
+      "top_relevance": 0.0001
+    },
+    {
+      "id": "adv-01",
+      "category": "absurd",
+      "claim": "The moon is square in shape.",
+      "top_relevance": 0.0
+    }
+  ],
+  "adversarial_top_scores": [
+    0.857917,
+    0.794522,
+    0.646798,
+    0.593436,
+    0.201661,
+    0.096659,
+    0.006399,
+    0.005818,
+    0.003082,
+    0.002857,
+    0.000633,
+    0.000591,
+    0.00017,
+    0.000137,
+    0.000115,
+    7.7e-05,
+    7e-05,
+    6.7e-05,
+    5.4e-05,
+    3.7e-05
+  ],
+  "elapsed_seconds": 554.0,
+  "caveat": "Known-item queries are verbatim passages from the corpus, so their gold documents score higher than a paraphrased real-world claim would. The retention side of this trade-off is therefore optimistic, and the recommended floor should be read as an upper bound. The adversarial side uses real claim text and is realistic.",
+  "recommended_floor": 0.25,
+  "best_achievable_abstain": 0.85
+}

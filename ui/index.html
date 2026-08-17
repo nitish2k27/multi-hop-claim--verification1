@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VerifAI</title>
+<style>
+  :root{
+    --bg:#fbfbfa; --panel:#fff; --ink:#1a1a1a; --muted:#6b6b6b;
+    --line:#e3e3e0; --accent:#2f5d8a; --accent-soft:#eef3f8;
+    --true:#0f7b3f; --mostly-true:#4a8c2a; --unverifiable:#8a6d1f;
+    --mostly-false:#a8500f; --false:#a11b1b;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#161615; --panel:#1e1e1d; --ink:#eceae5; --muted:#9a9a95;
+           --line:#33332f; --accent:#7fb0dd; --accent-soft:#22303c; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:52rem;margin:0 auto;padding:2rem 1.25rem 5rem}
+  header{display:flex;align-items:baseline;gap:.75rem;margin-bottom:.25rem}
+  h1{font-size:1.4rem;margin:0;letter-spacing:-.01em}
+  .tag{font-size:.78rem;color:var(--muted)}
+  .lede{color:var(--muted);margin:.25rem 0 1.5rem;font-size:.95rem}
+
+  .panel{background:var(--panel);border:1px solid var(--line);
+         border-radius:var(--radius);padding:1rem}
+  textarea{width:100%;min-height:5.5rem;resize:vertical;border:0;outline:0;
+           background:transparent;color:inherit;font:inherit}
+  .drop{margin-top:.75rem;border:1.5px dashed var(--line);border-radius:8px;
+        padding:.85rem;text-align:center;color:var(--muted);font-size:.88rem;
+        cursor:pointer;transition:.15s}
+  .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft);
+                         color:var(--ink)}
+  .drop.disabled{opacity:.5;cursor:not-allowed}
+  .file{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;
+        font-size:.86rem;background:var(--accent-soft);padding:.45rem .7rem;
+        border-radius:6px}
+  .file button{margin-inline-start:auto;border:0;background:none;color:var(--muted);
+               cursor:pointer;font-size:1rem;line-height:1}
+  .row{display:flex;gap:.6rem;align-items:center;margin-top:.85rem;flex-wrap:wrap}
+  button.go{background:var(--accent);color:#fff;border:0;border-radius:7px;
+            padding:.6rem 1.4rem;font:inherit;font-weight:600;cursor:pointer}
+  button.go:disabled{opacity:.5;cursor:default}
+  .hint{font-size:.8rem;color:var(--muted)}
+  .chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.9rem}
+  .chip{font-size:.78rem;border:1px solid var(--line);border-radius:99px;
+        padding:.2rem .65rem;color:var(--muted);cursor:pointer;background:none}
+  .chip:hover{border-color:var(--accent);color:var(--ink)}
+
+  /* progress */
+  .steps{margin-top:1.25rem;display:none}
+  .steps.on{display:block}
+  .step{display:flex;gap:.65rem;align-items:flex-start;padding:.35rem 0;
+        font-size:.88rem;opacity:0;animation:in .25s forwards}
+  @keyframes in{to{opacity:1}}
+  .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--accent);
+       margin-top:.55rem;flex:none}
+  .step .name{font-weight:600;min-width:5.5rem}
+  .step .detail{color:var(--muted)}
+
+  /* result */
+  .result{margin-top:1.5rem;display:none}
+  .result.on{display:block}
+  .verdict{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;
+           border-inline-start:5px solid var(--line);padding:.75rem 1rem;
+           background:var(--panel);border-radius:0 var(--radius) var(--radius) 0}
+  .verdict b{font-size:1.25rem}
+  .conf{color:var(--muted);font-size:.9rem}
+  .claim{font-size:1.05rem;margin:.25rem 0 1rem;font-weight:500}
+  h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;
+     color:var(--muted);margin:1.75rem 0 .6rem}
+  .ev{border:1px solid var(--line);border-radius:8px;padding:.75rem .9rem;
+      margin-bottom:.6rem;background:var(--panel)}
+  .ev .top{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;
+           font-size:.85rem;margin-bottom:.3rem}
+  .ev a{color:var(--accent);text-decoration:none;font-weight:600}
+  .badge{font-size:.72rem;border-radius:99px;padding:.1rem .5rem;
+         border:1px solid var(--line);color:var(--muted)}
+  .badge.warn{border-color:var(--mostly-false);color:var(--mostly-false)}
+  .badge.web{border-color:var(--accent);color:var(--accent)}
+  .meter{height:4px;background:var(--line);border-radius:2px;overflow:hidden;
+         width:60px;display:inline-block;vertical-align:middle}
+  .meter i{display:block;height:100%;background:var(--accent)}
+  ul.plain{margin:.3rem 0;padding-inline-start:1.1rem}
+  .files{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+  .files a{font-size:.83rem;border:1px solid var(--line);border-radius:6px;
+           padding:.3rem .7rem;text-decoration:none;color:var(--ink)}
+  .err{border:1px solid var(--false);color:var(--false);border-radius:8px;
+       padding:.75rem .9rem;margin-top:1rem;white-space:pre-wrap;font-size:.88rem}
+  audio{width:100%;margin-top:.6rem}
+  pre.md{white-space:pre-wrap;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;
+         background:var(--panel);border:1px solid var(--line);border-radius:8px;
+         padding:.9rem;overflow-x:auto}
+  details{margin-top:1rem}
+  summary{cursor:pointer;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>VerifAI</h1>
+    <span class="tag" id="idx">loading…</span>
+  </header>
+  <p class="lede">
+    Paste a claim, a screenshot, a voice note or a document.
+    It answers with cited evidence — or tells you it can't.
+  </p>
+
+  <div class="panel">
+    <textarea id="claim" placeholder="Type or paste a claim…&#10;e.g. India's software exports reached 222 billion dollars in 2024-25"></textarea>
+
+    <div class="drop" id="drop">
+      <strong>Drop a file</strong>, click to browse, or <strong>paste a screenshot</strong> (Ctrl+V)
+      <div class="hint" id="dropHint" style="margin-top:.25rem"></div>
+    </div>
+    <input type="file" id="file" hidden
+           accept=".mp3,.wav,.m4a,.ogg,.webm,.flac,.png,.jpg,.jpeg,.webp,.pdf,.docx,.txt,.md">
+    <div id="chosen"></div>
+
+    <div class="row">
+      <button class="go" id="go">Verify</button>
+      <span class="hint" id="mode">text claim</span>
+    </div>
+
+    <div class="chips" id="examples">
+      <button class="chip" data-c="India's software exports reached 222 billion dollars in 2024-25">verifiable claim</button>
+      <button class="chip" data-c="the moon is square in shape">should abstain</button>
+      <button class="chip" data-c="what time is it">not a claim</button>
+      <button class="chip" data-c="भारत का सॉफ्टवेयर निर्यात 2024-25 में 222 अरब डॉलर तक पहुंच गया">Hindi</button>
+    </div>
+  </div>
+
+  <div class="steps panel" id="steps"></div>
+  <div id="error"></div>
+  <div class="result" id="result"></div>
+
+</div>
+
+<script>
+const VERDICTS = {
+  TRUE:['TRUE','var(--true)'], MOSTLY_TRUE:['MOSTLY TRUE','var(--mostly-true)'],
+  UNVERIFIABLE:['UNVERIFIABLE','var(--unverifiable)'],
+  MOSTLY_FALSE:['MOSTLY FALSE','var(--mostly-false)'], FALSE:['FALSE','var(--false)']
+};
+const STEP_LABEL = {
+  adapt:'read', translate:'language', gate:'claim check', retrieve:'search index',
+  web:'web search', stance:'stance', generate:'verdict',
+  abstain:'abstain', reject:'reject', render:'report'
+};
+
+const $ = s => document.querySelector(s);
+let chosenFile = null, caps = {};
+
+/* ---------- capabilities ---------- */
+fetch('/health').then(r => r.json()).then(h => {
+  caps = h.capabilities || {};
+  $('#idx').textContent = h.status === 'ok'
+    ? `index ${h.index} · ${(h.documents||0).toLocaleString()} docs · floor ${h.relevance_floor}`
+    : 'index unavailable';
+  const bits = [];
+  bits.push(caps.voice ? 'voice ✓' : 'voice ✗');
+  bits.push(caps.image ? 'image ✓' : 'image ✗ (Tesseract not installed)');
+  bits.push('pdf/docx ✓');
+  bits.push(caps.web_search ? 'web fallback ✓' : 'web fallback ✗');
+  $('#dropHint').textContent = bits.join('  ·  ');
+}).catch(() => $('#idx').textContent = 'API unreachable');
+
+/* ---------- file selection ---------- */
+const drop = $('#drop'), fileInput = $('#file');
+drop.onclick = () => fileInput.click();
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => {
+  e.preventDefault(); drop.classList.remove('over');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+};
+fileInput.onchange = () => fileInput.files[0] && setFile(fileInput.files[0]);
+
+/* Paste a screenshot straight from the clipboard — the Instagram workflow. */
+window.addEventListener('paste', e => {
+  const item = [...(e.clipboardData?.items || [])]
+    .find(i => i.type.startsWith('image/'));
+  if (!item) return;
+  const blob = item.getAsFile();
+  if (!blob) return;
+  e.preventDefault();
+  const ext = (blob.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+  setFile(new File([blob], `pasted-screenshot.${ext}`, { type: blob.type }));
+});
+
+function setFile(f) {
+  chosenFile = f;
+  $('#chosen').innerHTML =
+    `<div class="file"><span>📎 ${escapeHtml(f.name)}</span>
+     <span class="hint">${(f.size/1024).toFixed(0)} KB</span>
+     <button title="remove" onclick="clearFile()">✕</button></div>`;
+  updateMode();
+}
+function clearFile() {
+  chosenFile = null; fileInput.value = ''; $('#chosen').innerHTML = ''; updateMode();
+}
+function updateMode() {
+  const hasText = $('#claim').value.trim().length > 0;
+  $('#mode').textContent = !chosenFile
+    ? 'text claim'
+    : hasText
+      ? 'verify the typed claim against the attached file (file capped at 0.6 credibility)'
+      : 'extract a claim from the file, then verify it';
+}
+$('#claim').oninput = updateMode;
+
+document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+  $('#claim').value = c.dataset.c; clearFile(); updateMode();
+});
+
+/* ---------- run ---------- */
+$('#go').onclick = run;
+$('#claim').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') run();
+});
+
+async function run() {
+  const claim = $('#claim').value.trim();
+  if (!claim && !chosenFile) { $('#claim').focus(); return; }
+
+  $('#go').disabled = true;
+  $('#error').innerHTML = '';
+  $('#result').className = 'result';
+  const steps = $('#steps');
+  steps.className = 'steps panel on';
+  steps.innerHTML = '';
+
+  const body = new FormData();
+  body.append('claim', claim);
+  if (chosenFile) body.append('file', chosenFile);
+
+  try {
+    const res = await fetch('/verify/stream', { method: 'POST', body });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop();
+      for (const part of parts) {
+        const line = part.split('\n').find(l => l.startsWith('data: '));
+        if (!line) continue;
+        handle(JSON.parse(line.slice(6)));
+      }
+    }
+  } catch (err) {
+    showError(String(err));
+  } finally {
+    $('#go').disabled = false;
+  }
+}
+
+function handle(ev) {
+  if (ev.type === 'step') addStep(ev.step, ev.detail);
+  else if (ev.type === 'done') showResult(ev.result);
+  else if (ev.type === 'error') showError(ev.message);
+}
+
+function addStep(node, d) {
+  const bits = [];
+  if (node === 'adapt') {
+    if (d.error) bits.push(d.error.split('\n')[0]);
+    else if (d.kind !== 'text') bits.push(`${d.kind} → ${(d.extracted||'').length} chars`);
+    else bits.push('text');
+  }
+  else if (node === 'translate')
+    bits.push(d.language === 'en' ? 'English' : `${d.language} → English`);
+  else if (node === 'gate')
+    bits.push(d.is_claim ? `is a claim (${(d.confidence*100).toFixed(1)}%)`
+                         : 'not a verifiable claim');
+  else if (node === 'retrieve' || node === 'web')
+    bits.push(`${d.candidates||0} candidates → ${d.evidence||0} above floor ${d.floor ?? ''}`);
+  else if (node === 'stance')
+    bits.push(Object.entries(d).map(([k,v]) => `${k} ${v}`).join(' · '));
+  else if (node === 'generate')
+    bits.push(`${d.verdict} at ${d.confidence}%`);
+  else if (node === 'abstain' || node === 'reject')
+    bits.push('no language model called');
+  else if (node === 'render')
+    bits.push(`${d.chars} chars` + (d.artifacts?.length ? ` · ${d.artifacts.join(', ')}` : ''));
+
+  const el = document.createElement('div');
+  el.className = 'step';
+  el.innerHTML = `<span class="dot"></span><span class="name">${STEP_LABEL[node]||node}</span>
+                  <span class="detail">${escapeHtml(bits.join(' '))}</span>`;
+  $('#steps').appendChild(el);
+}
+
+function showError(msg) {
+  $('#error').innerHTML = `<div class="err">${escapeHtml(msg)}</div>`;
+}
+
+function showResult(r) {
+  const box = $('#result');
+  const rep = r.report;
+  let html = '';
+
+  if (!rep) {
+    html = `<div class="claim">${escapeHtml(r.claim)}</div>
+      <div class="verdict" style="border-color:var(--unverifiable)">
+        <b style="color:var(--unverifiable)">NOT A CLAIM</b></div>
+      <pre class="md">${escapeHtml(r.rendered)}</pre>`;
+  } else {
+    const [label, colour] = VERDICTS[rep.verdict] || [rep.verdict, 'var(--muted)'];
+    html += `<div class="claim">${escapeHtml(rep.claim)}</div>
+      <div class="verdict" style="border-color:${colour}">
+        <b style="color:${colour}">${label}</b>
+        <span class="conf">${rep.confidence}% confidence</span>
+        <span class="conf">· ${r.outcome} · ${r.diagnostics?.llm_calls ?? 0} LLM call(s)</span>
+      </div>`;
+
+    if (r.input_kind !== 'text' && (r.transcript || r.extracted_text)) {
+      html += `<h2>${r.input_kind === 'voice' ? 'Transcript' : 'Extracted text'}</h2>
+        <div class="ev">${escapeHtml(r.transcript || r.extracted_text)}</div>`;
+    }
+
+    if (rep.key_findings?.length) {
+      html += '<h2>Key findings</h2><ul class="plain">' +
+        rep.key_findings.map(f =>
+          `<li>${escapeHtml(f.finding)} <span class="conf">[${f.evidence_index}]</span></li>`
+        ).join('') + '</ul>';
+    }
+
+    if (r.evidence?.length) {
+      html += '<h2>Evidence</h2>' + r.evidence.map(e => {
+        const a = rep.evidence_analysis?.find(x => x.evidence_index === e.index);
+        const badge = e.origin === 'user_upload'
+          ? '<span class="badge warn">your upload · unverified</span>'
+          : e.origin === 'web' ? '<span class="badge web">web search</span>' : '';
+        const pct = Math.round((e.credibility || 0) * 100);
+        return `<div class="ev">
+          <div class="top">
+            <span class="conf">[${e.index}]</span>
+            ${e.url && !e.url.startsWith('upload://')
+              ? `<a href="${escapeHtml(e.url)}" target="_blank" rel="noopener">${escapeHtml(e.domain||'source')}</a>`
+              : `<strong>${escapeHtml(e.domain||'source')}</strong>`}
+            ${badge}
+            <span class="badge">${a ? escapeHtml(a.stance) : ''}</span>
+            <span class="conf">credibility <span class="meter"><i style="width:${pct}%"></i></span> ${(e.credibility||0).toFixed(2)}</span>
+          </div>
+          ${a ? `<div>${escapeHtml(a.reasoning)}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    if (rep.limitations?.length) {
+      html += '<h2>Limitations</h2><ul class="plain">' +
+        rep.limitations.map(l => `<li>${escapeHtml(l)}</li>`).join('') + '</ul>';
+    }
+
+    html += `<h2>Conclusion</h2><p>${escapeHtml(rep.conclusion)}</p>`;
+
+    if (r.artifacts?.mp3) html += `<audio controls src="${r.artifacts.mp3}"></audio>`;
+    const links = Object.entries(r.artifacts || {}).filter(([k]) => k !== 'mp3');
+    if (links.length) {
+      html += '<div class="files">' + links.map(([k, v]) =>
+        `<a href="${v}" download>⬇ ${k}</a>`).join('') + '</div>';
+    }
+
+    html += `<details><summary>Full report (markdown)</summary>
+             <pre class="md">${escapeHtml(r.rendered)}</pre></details>`;
+  }
+
+  box.innerHTML = html;
+  box.className = 'result on';
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>

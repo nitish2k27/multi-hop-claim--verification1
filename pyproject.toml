@@ -1,0 +1,87 @@
+[project]
+name            = "verifai"
+version         = "2.0.0"
+description     = "Two-tier RAG fact verification system — LangChain + LangGraph + Groq"
+requires-python = ">=3.11"
+
+dependencies = [
+  # ── LangChain core stack ────────────────────────────────────────────────
+  # Pinned to the 0.3 line. LangChain's package split moves between minor
+  # releases and import paths shift with it, so an upgrade is its own task
+  # with the eval suite (eval/run_eval.py) as the regression check.
+  "langchain>=0.3,<0.4",
+  "langchain-core>=0.3,<0.4",
+  "langchain-community>=0.3,<0.4",   # BM25Retriever, cross-encoders
+  "langchain-text-splitters>=0.3,<0.4",
+  "langgraph>=1.0,<2",               # 1.0.1 verified; StateGraph API unchanged from 0.2
+  "langchain-chroma",
+  "langchain-huggingface",
+  "langchain-groq",                  # the only LLM provider we use
+
+  # ── Retrieval ───────────────────────────────────────────────────────────
+  "chromadb",
+  "rank-bm25",
+  "sentence-transformers",           # embeddings + cross-encoder reranker
+  "transformers",
+  "torch",
+
+  # ── Serving ─────────────────────────────────────────────────────────────
+  "fastapi",
+  "uvicorn",
+  "python-multipart",
+
+  # ── Config ──────────────────────────────────────────────────────────────
+  "pydantic-settings",
+  "python-dotenv",
+  "pyyaml",
+
+  # ── Data ────────────────────────────────────────────────────────────────
+  "pandas",
+  "numpy",
+  "python-dateutil",                 # RSS dates are RFC-822, not ISO
+  "langdetect",
+
+  # ── Ingestion ───────────────────────────────────────────────────────────
+  "feedparser",
+  "beautifulsoup4",
+  "requests",
+]
+
+[project.optional-dependencies]
+# Installed on demand so a bare `pip install -e .` gets someone to a working
+# text verification without pulling PDF/audio system dependencies.
+docs   = ["PyPDF2", "pdfplumber", "python-docx"]
+voice  = ["gtts"]
+dev    = ["pytest", "langsmith"]
+
+# M4 web search.
+#
+# DO NOT change this to `langchain-tavily`. That package requires
+# langchain-core>=1.0, and installing it silently drags the whole stack from
+# 0.3 to 1.x — which moves `langchain.retrievers` and breaks every retriever
+# import in serve/. Tried it; the app stopped booting with
+# `ModuleNotFoundError: No module named 'langchain.retrievers'`.
+#
+# `tavily-python` is the thin HTTP client with no langchain dependency at all.
+# `langchain_community.retrievers.TavilySearchAPIRetriever` (already pinned
+# above) wraps it as a real BaseRetriever, so the LangChain-native composition
+# is kept without the version conflict.
+search = ["tavily-python"]
+
+[build-system]
+requires      = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["core", "ingest", "serve", "serve.nodes", "eval_harness", "demo"]
+
+[tool.pytest.ini_options]
+testpaths        = ["tests"]
+# Repo root on sys.path so `from tests.conftest import ...` and `from core...`
+# both resolve without an editable install.
+pythonpath       = ["."]
+addopts          = "-q --strict-markers"
+filterwarnings   = [
+  # LangGraph 1.0.1 emits this on import; it is not actionable here.
+  "ignore::UserWarning:langgraph.*",
+]

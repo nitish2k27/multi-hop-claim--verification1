@@ -132,3 +132,48 @@ tests/models/language_detection/*.bin
 *.txt
 !requirements.txt
 !*.md
+# ============================================
+# VerifAI v2 (rebuild/two-tier)
+# ============================================
+
+# Secrets — never commit. .env.example is the tracked template.
+.env
+.env.*
+!.env.example
+
+# THE CONTRACT — Tier 1 build output, rebuildable in ~2 minutes
+index/
+
+# Embedding cache (CacheBackedEmbeddings)
+data/.embed_cache/
+
+# Packaging
+*.egg-info/
+.pytest_cache/
+
+# ── M3 eval artifacts: these ARE the deliverable ──────────────────────────
+# The blanket *.json / *.jsonl rules above exist for bulk data dumps, but the
+# eval datasets and results must be in the repo — the README quotes these
+# numbers, and a metric nobody can reproduce is not a metric.
+!eval_harness/datasets/
+!eval_harness/datasets/*.jsonl
+!eval_harness/results/
+!eval_harness/results/*.json
+!eval_harness/results/*.md
+
+# Cleanup staging area (scripts/cleanup.py). Holds removed files until the repo
+# is verified; delete the directory by hand once you are happy.
+_trash/
+
+# Generated report exports (html/docx/mp3 written by serve.nodes.export).
+data/outputs/
+
+# --- Test fixtures ARE committed -------------------------------------------
+# The blanket image/audio rules above would swallow them, but the demo's voice
+# and image scenarios and several tests need these files on a clean clone.
+# ~190 KB total, and regenerable with `python -m tests.make_fixtures`.
+!tests/fixtures/
+!tests/fixtures/*.mp3
+!tests/fixtures/*.png
+!tests/fixtures/*.docx
+!tests/fixtures/*.pdf

@@ -66,6 +66,11 @@ class MultilingualVerificationPipeline:
             nlp_result = self.nlp.analyze(claim)
             user_language = nlp_result.get('language', 'en')
             logger.info(f"  Detected: {user_language}")
+            
+            # If language detection failed, default to English
+            if user_language == 'unknown':
+                logger.warning("Language detection failed, defaulting to English")
+                user_language = 'en'
         
         # Step 2: Translate to English if needed
         if user_language != 'en':
@@ -82,7 +87,7 @@ class MultilingualVerificationPipeline:
         nlp_result = self.nlp.analyze(claim_en)
         
         # If not a claim, return early
-        if not nlp_result['is_claim']:
+        if not nlp_result['analysis']['claim_detection']['is_claim']:
             return self._format_response(
                 verdict='NOT_A_CLAIM',
                 confidence=0.0,

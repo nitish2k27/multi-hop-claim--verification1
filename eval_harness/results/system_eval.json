@@ -1,0 +1,2029 @@
+{
+  "confident_threshold": 70,
+  "adversarial": {
+    "n": 20,
+    "abstained": 20,
+    "rejected_at_gate": 0,
+    "wrongly_answered": 0,
+    "abstain_precision": 1.0,
+    "abstained_by_relevance_floor": 16,
+    "abstained_by_llm_judgement": 4,
+    "details": [
+      {
+        "id": "adv-01",
+        "category": "absurd",
+        "claim": "The moon is square in shape.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-02",
+        "category": "absurd",
+        "claim": "Water boils at 40 degrees Celsius at sea level.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-03",
+        "category": "absurd",
+        "claim": "The Pacific Ocean is smaller than Lake Superior.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-04",
+        "category": "absurd",
+        "claim": "Adult humans have three hearts and two spines.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-05",
+        "category": "absent_true",
+        "claim": "The Treaty of Westphalia was signed in 1648.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-06",
+        "category": "absent_true",
+        "claim": "Napoleon Bonaparte was born on the island of Corsica.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-07",
+        "category": "absent_true",
+        "claim": "Insulin was first isolated at the University of Toronto in 1921.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-08",
+        "category": "absent_true",
+        "claim": "The human genome contains roughly 20,000 protein-coding genes.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-09",
+        "category": "absent_false",
+        "claim": "The Great Wall of China is visible from the Moon with the naked eye.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-10",
+        "category": "absent_false",
+        "claim": "Vitamin C reliably cures the common cold within 24 hours.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-11",
+        "category": "absent_false",
+        "claim": "Sweden adopted the euro as its official currency in 2023.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-12",
+        "category": "absent_false",
+        "claim": "The population of Reykjavik exceeded two million people in 2024.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-13",
+        "category": "near_miss",
+        "claim": "India's GDP contracted by 12 percent during the 2019 fiscal year.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-14",
+        "category": "near_miss",
+        "claim": "Apple sold exactly 41 million iPhones in the first quarter of 2019.",
+        "mechanism": "llm_judgement",
+        "evidence": 2,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-15",
+        "category": "near_miss",
+        "claim": "TechCrunch was founded in 1998 by Michael Arrington.",
+        "mechanism": "llm_judgement",
+        "evidence": 1,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-16",
+        "category": "near_miss",
+        "claim": "Netflix reported 500 million paying subscribers in 2023.",
+        "mechanism": "llm_judgement",
+        "evidence": 3,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-17",
+        "category": "near_miss",
+        "claim": "OpenAI was founded in 2010 as a for-profit hardware company.",
+        "mechanism": "llm_judgement",
+        "evidence": 7,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-18",
+        "category": "near_miss",
+        "claim": "Bitcoin traded above 500,000 US dollars in March 2024.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-19",
+        "category": "near_miss",
+        "claim": "The Guardian newspaper published its first edition in 1921.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      },
+      {
+        "id": "adv-20",
+        "category": "near_miss",
+        "claim": "Infosys relocated its global headquarters from Bengaluru to Chennai in 2022.",
+        "mechanism": "relevance_floor",
+        "evidence": 0,
+        "verdict": "UNVERIFIABLE",
+        "confidence": 0
+      }
+    ],
+    "by_category": {
+      "absent_false": {
+        "n": 4,
+        "abstain_precision": 1.0
+      },
+      "absent_true": {
+        "n": 4,
+        "abstain_precision": 1.0
+      },
+      "absurd": {
+        "n": 4,
+        "abstain_precision": 1.0
+      },
+      "near_miss": {
+        "n": 8,
+        "abstain_precision": 1.0
+      }
+    },
+    "failures": []
+  },
+  "elapsed_seconds": 150.5,
+  "fever": {
+    "n": 200,
+    "answered": 5,
+    "abstained": 195,
+    "rejected": 0,
+    "abstain_rate": 0.975,
+    "verdict_accuracy": 1.0,
+    "false_confidence": 0,
+    "false_confidence_rate@70": 0.0,
+    "mean_confidence_when_correct": 78,
+    "mean_confidence_when_wrong": null
+  },
+  "fever_details": [
+    {
+      "id": "fever-501162",
+      "claim": "Excuse My French is the debut album of Karim Kharbouch",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-127472",
+      "claim": "What requires the use of computer terminals are Internet Access.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-119493",
+      "claim": "Joseph Goebbels, with his Propaganda Ministry, controlled the news media, arts, and information in Germany.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-177529",
+      "claim": "Brick Mansions starred Belle.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-12450",
+      "claim": "According to some, Zoroastrianism's major features have been influential.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-221132",
+      "claim": "Ted Cruz is from the United States.",
+      "gold": "SUPPORTS",
+      "outcome": "verified",
+      "verdict": "TRUE",
+      "confidence": 80,
+      "evidence": 1
+    },
+    {
+      "id": "fever-162044",
+      "claim": "Benjamin Walker (actor) is a stand up performer.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-223495",
+      "claim": "The Prague Castle is a location.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-177865",
+      "claim": "Milk is an American film.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-227347",
+      "claim": "Giada at Home first aired in 2008.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-205126",
+      "claim": "Gaius Julius Caesar participated in a senate.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-36399",
+      "claim": "Floyd Mayweather Jr. is a professional boxer.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-113235",
+      "claim": "2005 was the year Stanley Williams was executed.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-45806",
+      "claim": "Bonobos' estimated population is less than 50,000.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-173598",
+      "claim": "Hair (musical) was revived on Broadway.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-204437",
+      "claim": "Brad Wilk was a musician for Greta.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-58841",
+      "claim": "The Wallace is a poem.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-50245",
+      "claim": "Noel Fisher was on a television station.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-501112",
+      "claim": "Inside Llewyn Davis was screened for the festival which was named until 2002 as the International Film Festival",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-76615",
+      "claim": "South Island is divided from North Island by Cook Strait.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-42628",
+      "claim": "Times Higher Education World University Rankings is released yearly.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-33744",
+      "claim": "Jackie (2016 film) was written by Noah Oppenheim.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-72079",
+      "claim": "Psych takes place in California.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-93610",
+      "claim": "Britt Robertson is an entertainer.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-44327",
+      "claim": "Emma Watson was born.",
+      "gold": "SUPPORTS",
+      "outcome": "verified",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 1
+    },
+    {
+      "id": "fever-143867",
+      "claim": "Ed Wood is a motion picture.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-5934",
+      "claim": "In 2017, the Washington Wizards were the winners of a division title.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-34619",
+      "claim": "Temple Mount has something to do with Jerusalem.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-48416",
+      "claim": "September was the month the American actor that plays Chumlee was born on.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-89583",
+      "claim": "Wolfgang Amadeus Mozart was a talented youth.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-27588",
+      "claim": "Caroline Kennedy is a diplomat.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-11620",
+      "claim": "Arizona is in the United States.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-134442",
+      "claim": "A parent of Jed Whedon was a screenwriter.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-68908",
+      "claim": "Eurotas (river) is the main river of Laconia.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-202956",
+      "claim": "Avenged Sevenfold is an album by a band from California.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-143205",
+      "claim": "The American Civil War began in 1861.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-222896",
+      "claim": "In an all-seater stadium, every spectator has a seat.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-72985",
+      "claim": "Qui-Gon Jinn is a character in the Star Wars franchise.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-67189",
+      "claim": "Blue Jasmine is a film.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-219130",
+      "claim": "Valencia is a city.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-173604",
+      "claim": "Hair (musical) received a Drama Desk Award for best revival of a musical.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-222024",
+      "claim": "Brubaker is an American film.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-144309",
+      "claim": "The film Watchmen focuses on a group of mostly retired American superheroes.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-7702",
+      "claim": "An American directed One True Thing.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-99942",
+      "claim": "Exotic Birds were an opening band for Information Society.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-135327",
+      "claim": "Vampires caused mischief or deaths.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-53020",
+      "claim": "Sebastian Stan was nominated for a Critics' Choice Television Award.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-223678",
+      "claim": "UNICEF UK is a National Committee.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-86625",
+      "claim": "Stan Beeman is a fictional character in The Americans.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-10674",
+      "claim": "Manchester United F.C. was the world's highest-earning football club for a season.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-58244",
+      "claim": "No Country for Old Men starred actors.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-22266",
+      "claim": "The Stanford prison experiment was an investigation into the causes of difficulties between guards and prisoners.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-170104",
+      "claim": "Ann Biderman is an American television writer.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-59777",
+      "claim": "Basildon has three stations that go to London Fenchurch Street.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-93974",
+      "claim": "On July 13th, 2007, Psych (season 2) began.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-99939",
+      "claim": "Seohyun was born in 1991.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-36170",
+      "claim": "AMGTV has programming.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-87809",
+      "claim": "Brie Larson is a singer.",
+      "gold": "SUPPORTS",
+      "outcome": "verified",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 20,
+      "evidence": 1
+    },
+    {
+      "id": "fever-188570",
+      "claim": "Pitch Perfect 2 centers on a singing group.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-153736",
+      "claim": "Ron Howard directed The Paper.",
+      "gold": "SUPPORTS",
+      "outcome": "verified",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 1
+    },
+    {
+      "id": "fever-48815",
+      "claim": "The last windstorm in Stanley Park was in May of 2006.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-201372",
+      "claim": "Varsity Blues (film) had reviews.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-130027",
+      "claim": "Mars is the site of Valles Marineris, one of the largest canyons in the Solar System.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-15773",
+      "claim": "Faye Resnick writes.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-214973",
+      "claim": "Sensitive Skin's first series aired in a country.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-79429",
+      "claim": "The Vandals migrated around Europe.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-500067",
+      "claim": "The area of Madhya Pradesh is larger than the area of Cuango, Angola.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-126926",
+      "claim": "Hinduism contains a philosophical range.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-58415",
+      "claim": "Ludwig van Beethoven was part of the classical era.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-178213",
+      "claim": "Move (Little Mix song) was released on an album.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-100615",
+      "claim": "Team Fortress 2 development was led by Robin Walker.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-102793",
+      "claim": "Henry II of France died in a tournament devoted to celebrating the Peace of Cateau-Cambr\u00e9sis.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-187375",
+      "claim": "Rob McElhenney plays Mac on an FX/FXX comedy series.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-170400",
+      "claim": "Michael Vick is a former football quarterback.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-26341",
+      "claim": "Pocahontas was born Matoaka.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-185212",
+      "claim": "Home for the Holidays stars a producer from the United States.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-86143",
+      "claim": "Connie Nielsen is an actress.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-172324",
+      "claim": "Scream 2 is a film created in the United States.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-159936",
+      "claim": "Christa McAuliffe was a teacher at Concord High School.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-202793",
+      "claim": "Despicable Me 2 was produced by a company.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-45515",
+      "claim": "Macklemore's song \"Thrift Shop\" was number one in America in 2013.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-33290",
+      "claim": "Fred Seibert has produced live action programs.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-64364",
+      "claim": "Tangled is a 3D film that was released in 2010.",
+      "gold": "SUPPORTS",
+      "outcome": "verified",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 60,
+      "evidence": 1
+    },
+    {
+      "id": "fever-226092",
+      "claim": "The setting of Bongwater is Oregon.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-157589",
+      "claim": "A Writers Guild Award was nominated to Key & Peele.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-126728",
+      "claim": "The horse was referred to as a Eohippus when it had multiple toes.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-115173",
+      "claim": "Wildfang was established in Portland, Oregon.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-64628",
+      "claim": "There was a song performed on Glee called Rhythm Nation.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-38255",
+      "claim": "There is a Showtime series with Nicholas Brody as a character.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-124479",
+      "claim": "Due Date was shot in the United States.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-202935",
+      "claim": "Avenged Sevenfold is the fourth studio album of an American heavy metal band.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-178328",
+      "claim": "Al Jardine is a rhythm guitarist.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-35574",
+      "claim": "Anthony Scaramucci is a figure in politics.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-187108",
+      "claim": "Eva Mendes is a person.",
+      "gold": "SUPPORTS",
+      "outcome": "verified",
+      "verdict": "TRUE",
+      "confidence": 70,
+      "evidence": 2
+    },
+    {
+      "id": "fever-130501",
+      "claim": "Liam Neeson received nominations for three Golden Globe Awards.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-9735",
+      "claim": "Appropriation (art) played a significant role in visual arts.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-143852",
+      "claim": "Prescott, Arizona is in Arizona.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-194241",
+      "claim": "Mike Friedrich was only born on May 27, 1949.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-209880",
+      "claim": "In a Lonely Place was based on a book of the same name.",
+      "gold": "SUPPORTS",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-98304",
+      "claim": "The Indian Army comprises part of the country's active defense personnel.",
+      "gold": "SUPPORTS",
+      "outcome": "verified",
+      "verdict": "MOSTLY_TRUE",
+      "confidence": 80,
+      "evidence": 1
+    },
+    {
+      "id": "fever-102911",
+      "claim": "Reanimation is not by Linkin Park.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-108894",
+      "claim": "West Ham United F.C. was not founded in 1895.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-13132",
+      "claim": "The Giver is only a book.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-1598",
+      "claim": "The Hunger Games are a film trilogy.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-155920",
+      "claim": "Taylor Lautner appeared in The Bernie Mac Show in 2001.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-93018",
+      "claim": "Match Point was an unproduced screenplay by Woody Allen.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-116349",
+      "claim": "Uranium-235 was discovered by a person who was known for his work in mass spectrometry in 2014.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-174900",
+      "claim": "The Alfred P. Murrah Federal Building was only located outside of the geographic center of the Oklahoma City metropolitan area.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-110772",
+      "claim": "Sidse Babett Knudsen is Swedish.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-202794",
+      "claim": "Despicable Me 2 was produced exclusively by Yahoo.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-500703",
+      "claim": "The Latvian Soviet Socialist Republic was a republic of the Soviet Union 5 years after 2007.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-130415",
+      "claim": "A Floppy disk is a type of fish.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-128004",
+      "claim": "MSG is only used in the film industry.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-226113",
+      "claim": "Bongwater is set in Texas.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-192921",
+      "claim": "\"Love the Way You Lie\" failed to receive any Grammy nominations.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-196762",
+      "claim": "Marnie is exclusively an Italian film.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-194367",
+      "claim": "Happiness in Slavery is a not song by a band.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-10461",
+      "claim": "Kuching is in Sri Lanka.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-49775",
+      "claim": "Baloch people rarely speak the Balochi language.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-19169",
+      "claim": "Poseidon lost $181,674,817.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-115659",
+      "claim": "In the 1970's, Samsung entered the construction industry.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-84647",
+      "claim": "Angelsberg is a country.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-21495",
+      "claim": "The Guthrie Theater's first building stopped operating in 1962.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-182915",
+      "claim": "The soundtrack of Far from the Madding Crowd was by Waluigi.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-199809",
+      "claim": "Sweet Home Alabama is an epic novel that was written in reply to two songs from Neil Young's album Harvest.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-138252",
+      "claim": "The Ellen Show refused to include Ellen DeGeneres in its cast.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-157213",
+      "claim": "Melilla is located on the north coast of Antarctica.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-84828",
+      "claim": "One True Thing was made after 2000.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-167457",
+      "claim": "Cadet Kelly was a movie not released in 2002.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-7138",
+      "claim": "The Tenth Doctor travels alone during the time period 2009-2010.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-28447",
+      "claim": "The Tenth Doctor makes his penultimate appearance in Journey's End.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-11853",
+      "claim": "Robinson Crusoe on Mars was distributed by an American film studio in 2006.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-38288",
+      "claim": "You Belong with Me was the opening number in Taylor Swift's birthday party.",
+      "gold": "REFUTES",
+      "outcome": "verified",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 1
+    },
+    {
+      "id": "fever-4091",
+      "claim": "Zac Efron's full name is Zac David Alexander Efron.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-227372",
+      "claim": "Giada at Home aired on July 14th, 2007.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-26141",
+      "claim": "Sikkim is host to the highest peak in China.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-50120",
+      "claim": "Daag was kept from being produced.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-66809",
+      "claim": "Hush (2016 film) was not produced by Trevor Macy.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-71642",
+      "claim": "The Raven (2012 film) was released in Ireland in 2014.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-58572",
+      "claim": "Musala is the highest paid sports player in the Balkan Peninsula.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-214247",
+      "claim": "DJ Quik graduated college on January 18th, 1970.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-88152",
+      "claim": "Trouble with the Curve only stars Adam Sandler.",
+      "gold": "REFUTES",
+      "outcome": "verified",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 1
+    },
+    {
+      "id": "fever-57359",
+      "claim": "Cheese in the Trap (TV series) comes from India.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-151264",
+      "claim": "The English Wikipedia is an edition of a free online almanac.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-162836",
+      "claim": "Islamabad is a squid.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-149607",
+      "claim": "Charlotte, North Carolina banned any corporation headquarters forever.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-127955",
+      "claim": "George Harrison's first marriage started in 1964.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-12084",
+      "claim": "Acetylcholine prevents neuromodulation.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-76692",
+      "claim": "Key & Peele has won an Academy Award.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-10146",
+      "claim": "TakePart is a division of 20th Century Fox.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-174526",
+      "claim": "Red Bull Racing only races under an American license.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-140443",
+      "claim": "Super Bowl XLV was played at Fenway Park.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-137201",
+      "claim": "Azithromycin is sold without brand names.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-99849",
+      "claim": "Humphrey Bogart was not ranked greatest male star of Classic American cinema in 1999.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-226864",
+      "claim": "Jenna Jameson was incapable of modeling.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-150656",
+      "claim": "Touch My Body is an erotic thriller from the director, Quentin Tarantino.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-142765",
+      "claim": "Kung Fu Panda grossed $70,300,000 on opening day.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-173614",
+      "claim": "Hair (musical) only ran on Broadway in the 1980's.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-130406",
+      "claim": "Kerplunk was released through a company other than Lookout Records.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-120422",
+      "claim": "Temple Grandin was directed by Christopher Nolan.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-88429",
+      "claim": "Tremont Street Subway is incapable of serving Park Street station.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-178240",
+      "claim": "Nawaz Sharif has no record in politics.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-131670",
+      "claim": "Michael Hutchence has yet to die.",
+      "gold": "REFUTES",
+      "outcome": "verified",
+      "verdict": "FALSE",
+      "confidence": 80,
+      "evidence": 1
+    },
+    {
+      "id": "fever-156222",
+      "claim": "The SpongeBob SquarePants Movie only stars Donald Trump.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-53319",
+      "claim": "The Big Country is a novel.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-44497",
+      "claim": "Histamine prevents neuromodulation.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-218358",
+      "claim": "The French Resistance committed zero acts of sabotage.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-137842",
+      "claim": "Arizona is a mass-marketed beverage.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-194175",
+      "claim": "Jeb Bush is the younger brother of Ronald Reagan.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-92580",
+      "claim": "Paul von Hindenburg was a private man.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-132214",
+      "claim": "Yvonne Strahovski has only worked on movies.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-93173",
+      "claim": "The Fame was released in February 2016.",
+      "gold": "REFUTES",
+      "outcome": "verified",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 2
+    },
+    {
+      "id": "fever-500871",
+      "claim": "The Office (US) was filmed in front of living viewers",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-153367",
+      "claim": "Heath Ledger only appeared in films inspired by British royalty.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-151374",
+      "claim": "Georges Gilles de la Tourette failed to describe symptoms in 1884.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-114066",
+      "claim": "The Dodo has only been depicted with red plumage.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-158907",
+      "claim": "Unison (Celine Dion album) was originally released in 1980.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-47267",
+      "claim": "Benzodiazepines are always safe.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-211016",
+      "claim": "Resident Evil is an unadapted video game.",
+      "gold": "REFUTES",
+      "outcome": "verified",
+      "verdict": "FALSE",
+      "confidence": 80,
+      "evidence": 1
+    },
+    {
+      "id": "fever-186602",
+      "claim": "Asylum Records is an American record label founded in 1990.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-130683",
+      "claim": "SpongeBob SquarePants is not a media franchise.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-500291",
+      "claim": "Road House an action film by Hollywood director and writer currently residing in Rochester , New York.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-170414",
+      "claim": "Michael Vick has only ever played the sport of golf.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-201391",
+      "claim": "Varsity Blues (film) made zero profits and revenue.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-84967",
+      "claim": "Clueless (film) was preceded by a series of books.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-97655",
+      "claim": "MS-13 is a part of the Sinaloa Cartel after being absorbed.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-23861",
+      "claim": "Minor League Baseball provides opportunities for river development.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-144570",
+      "claim": "Sophia Bush only acted on stage.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-76649",
+      "claim": "Two and a Half Men originally aired on CBS in 1999.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-134682",
+      "claim": "The Lincoln-Douglas debates happened in a town.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-17718",
+      "claim": "Hourglass is the sixteenth studio album of James Taylor.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-121718",
+      "claim": "A near-Earth object is one whose orbit brings it into proximity with Mars.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-29849",
+      "claim": "Watertown, Massachusetts is a Dutch city.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-194260",
+      "claim": "Coins of the Swiss franc are used only outside of Liechtenstein.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-10357",
+      "claim": "Brian Michael Bendis has spent his entire career as a professional baseball player.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-111685",
+      "claim": "Trouble with the Curve was only released in 2013.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-110294",
+      "claim": "ASAP Rocky has directed chemistry videos for other A$AP Mob members.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-22726",
+      "claim": "In Kentucky, the electric chair has been kept in operation except for those whose capital crimes were committed prior to March 31, 1998, and who choose electrocution.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-78080",
+      "claim": "Chumlee is the stage name of Tom Brady.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    },
+    {
+      "id": "fever-140492",
+      "claim": "Vatican City is a band.",
+      "gold": "REFUTES",
+      "outcome": "abstained",
+      "verdict": "UNVERIFIABLE",
+      "confidence": 0,
+      "evidence": 0
+    }
+  ],
+  "fever_from_previous_run": true
+}
