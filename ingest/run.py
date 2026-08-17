@@ -9,7 +9,12 @@ Needs no Groq key — embeddings are local, and nothing here calls an LLM. That 
 the point of the tier split: the corpus can be rebuilt offline while the serving
 app keeps running on the previously published index.
 
-The `--crawl` path (discover → fetch → live sources) lands in M5.
+`--from-csv` is currently the only path in. The `--crawl` path — discover →
+fetch → live sources, driven by the 363 feeds in `ingest/sources.yaml` — is not
+built yet; `discover.py` and `fetch.py` do not exist. That gap is what leaves
+96% of publish dates as scrape-time placeholders, since RSS entries carry a real
+`published` field and the CSV does not. See the README section "The corpus, and
+crawling".
 """
 
 from __future__ import annotations
