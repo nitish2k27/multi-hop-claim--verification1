@@ -349,18 +349,31 @@ image (no Tesseract) → clean rejection, exit 3, no traceback
 SSE          → one event per node, /health reports capabilities
 ```
 
-⚠ **The upload safety test is verified only up to generation.** Retrieval
-attaches the document at relevance 1.0000 and **credibility 0.50**, stance runs,
-and then the Groq daily quota blocked the final verdict. The mechanism is unit
-tested (`test_upload_credibility_is_capped`, `test_upload_evidence_is_labelled_for_the_prompt`)
-but **the end-to-end "does the LLM refuse to confirm the upload's own claim"
-check has not been run.** Do this first when the quota resets:
+✅ **The upload safety test PASSES.** Run 2026-08-17 on the new Groq key:
 
-```bash
-python -m serve.cli --no-web --document tests/fixtures/false_report.docx \
-  "India's software exports collapsed to 40 billion dollars in 2024-25"
-# must NOT be TRUE — the corpus says 222 billion, the upload says 40 billion
 ```
+doc asserts "exports collapsed to 40 billion", claim asserts the same
+-> FALSE @ 80%   (corpus says 222 billion; the upload was refuted)
+```
+
+The system used corpus evidence to contradict the user's own attachment. The
+0.6 cap plus the `⚠ UNVERIFIED USER SUBMISSION` prompt label both did their job.
+
+**Full flow verified end to end (7/7 explicit checks):**
+
+```
+PASS  text, verifiable          TRUE @ 80%            verified
+PASS  text, topical but absent  UNVERIFIABLE @ 30%    verified
+PASS  text, nothing relevant    abstained, 0 LLM calls
+PASS  text, not a claim         rejected, 0.1s
+PASS  Hindi text                TRUE @ 80%, hi report
+PASS  Hindi VOICE               Whisper -> hi -> TRUE @ 80% + mp3
+PASS  upload safety             FALSE @ 80%
+```
+
+**Not verifiable yet, both blocked on the user:** image OCR (Tesseract not
+installed) and web fallback (`TAVILY_API_KEY` still empty). Both degrade
+correctly — image rejects with an install message, web skips to abstain.
 
 ### Deviations from BUILD_PLAN §M5
 
@@ -457,6 +470,40 @@ with `serve/api.py` built on `graph.astream(stream_mode="updates")`.
 
 Verified after cleanup: all three exits still run, `ingest.run --status` works,
 `eval_harness.report` still generates.
+
+### Frontend — built (React, Vite, no TypeScript)
+
+`frontend/` → builds into `ui/dist/`, which `serve/api.py` serves. Node v20.18 /
+npm 10.8 confirmed on this machine; 63 packages, 156 KB JS bundle.
+
+```
+frontend/src/
+  api.js                 fetch + SSE parsing
+  history.js             localStorage session history, capped at 40 entries
+  App.jsx                shell and state
+  components/ClaimInput  textarea · drag-drop · CLIPBOARD PASTE · examples
+              Progress   one row per graph node, live
+              Report     verdict · evidence · credibility meters · downloads
+              History    re-openable past runs
+```
+
+**How it connects to FastAPI** — the answer to "or what to connect with the
+backend": Vite proxies `/verify`, `/health`, `/download` to `127.0.0.1:8000` in
+dev, so the browser sees one origin and there is **no CORS preflight** on the
+multipart upload. `npm run build` → `ui/dist/` → FastAPI serves it directly.
+CORS middleware is added anyway for anyone bypassing the proxy, localhost only.
+
+**Fallback preserved:** `/` serves `ui/dist/index.html` if the React build
+exists, else the self-contained `ui/index.html`. A clone with no Node still has
+a working UI — React is an upgrade, not a requirement.
+
+**History is localStorage, not a backend table.** There are no accounts to scope
+a server-side history to, and it survives the backend restarting on a corpus
+rebuild. Capped because a full result is tens of KB against a ~5 MB quota.
+
+⚠ `.gitignore` needed two more negations: the blanket `*.json` rule was
+swallowing `frontend/package.json` and `package-lock.json` — the two files a
+clone needs to reproduce the build. `node_modules/` and `ui/dist/` are ignored.
 
 ### 👉 NEXT ACTION
 
