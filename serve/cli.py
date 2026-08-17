@@ -29,6 +29,26 @@ from serve.retriever import IndexIncompatible, IndexUnavailable
 from serve.schemas import new_state
 
 
+def _force_utf8_stdio() -> None:
+    """
+    Make stdout/stderr UTF-8 regardless of the console's code page.
+
+    A Windows console is cp1252 by default, which cannot encode most of what
+    this system legitimately produces: a Hindi or Tamil report, a curly quote
+    lifted from an article, or the narrow no-break space (U+202F) that some
+    models put between a number and its unit. Without this the run completes,
+    the verdict is correct, and then the final `print` raises
+    UnicodeEncodeError — the work is done and thrown away at the last step.
+
+    `errors="replace"` rather than "strict" so an unmappable glyph degrades to
+    a question mark instead of losing the whole report.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def _log_setup(verbose: bool) -> None:
     logging.basicConfig(
         level=logging.DEBUG if verbose else logging.INFO,
@@ -135,6 +155,8 @@ def main() -> int:
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
 
+    # Before any logging handler is created — logging binds the stream it finds.
+    _force_utf8_stdio()
     _log_setup(args.verbose)
 
     # Mutating cfg rather than the environment: the settings object is the

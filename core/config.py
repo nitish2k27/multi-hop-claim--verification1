@@ -43,7 +43,13 @@ class Settings(BaseSettings):
     langsmith_project: str = Field(default="verifai")
 
     # ── Groq models ─────────────────────────────────────────────────────────
-    groq_model: str = Field(default="llama-3.3-70b-versatile")
+    # Groq retires models on a rolling basis, so this default has a shelf life.
+    # `llama-3.3-70b-versatile` was the default until 2026-08-17, when it began
+    # returning 404 model_not_found mid-session — it answered a request at 13:59
+    # and was gone by 14:17. core.llm.verify_models() checks these against
+    # GET /openai/v1/models at startup so a retirement surfaces as a clear boot
+    # error instead of a failed request seven nodes deep.
+    groq_model: str = Field(default="openai/gpt-oss-120b")
     groq_whisper_model: str = Field(default="whisper-large-v3")
     groq_vision_model: str = Field(default="")
 

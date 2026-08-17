@@ -380,20 +380,37 @@
     <span class="label">The claim under test</span>
     <q>India's software exports reached 222 billion dollars in 2024-25</q>
     <div class="outcome-row">
-      <span class="chip good"><b>TRUE</b> @ 80% confidence</span>
+      <span class="chip good"><b>TRUE</b> @ 92% confidence</span>
       <span class="chip">outcome <b>verified</b></span>
       <span class="chip">35 candidates → <b>3</b> evidence</span>
       <span class="chip"><b>1</b> LLM call</span>
-      <span class="chip">total <b>6.91s</b></span>
+      <span class="chip">total <b>22.5s</b> cold</span>
     </div>
   </div>
 
   <p class="section-note" style="margin-top:1.6rem">
-    Every number on this page came from an actual run on 2026-08-17 against
-    index <code>v1</code> (1,687 documents, 13,101 chunks). Nothing is
-    illustrative. Where a stage could not be executed on the machine that
-    produced this trace, it is marked as such rather than filled in.
+    Every number on this page came from a single run on 2026-08-17 against
+    index <code>v1</code> (1,687 documents, 13,101 chunks), start to finish in
+    one process. Nothing is illustrative.
   </p>
+
+  <div class="note">
+    <h4>On the timings and the confidence</h4>
+    <p>
+      22.5&nbsp;s is a <em>cold</em> run — roughly 10&nbsp;s of it is loading
+      four CPU models and unpickling 13,101 BM25 entries, paid once per
+      process. The same claim through the warm HTTP API returns in
+      <b>5.19&nbsp;s</b>. The API pays this cost at startup rather than during
+      the first request (<code>serve/api.py:345</code>), so the first
+      verification is as fast as the tenth.
+    </p>
+    <p>
+      Confidence moves a few points between runs — 78, 85, 92 across three —
+      because generation runs at temperature 0.2. The verdict, the evidence set
+      and the retrieval figures are stable; treat the confidence as a band, not
+      a reading.
+    </p>
+  </div>
 
   <!-- ══ Overview diagram ══════════════════════════════════════════════════ -->
   <h2><span class="num">Overview</span>Two processes, one stream</h2>
@@ -743,7 +760,7 @@
       <div class="rail"><div class="step-no">06</div></div>
       <div class="body">
         <h3><span class="node">stance</span>Label each document against the claim</h3>
-        <div class="timing">second local model · 413 MB</div>
+        <div class="timing">4.9s · second local model · 413 MB</div>
         <p>
           One batched forward pass over all <em>(claim, evidence)</em> pairs.
           The matched chunk is preferred over the full article: it is what the
@@ -761,20 +778,22 @@
           already attached it during retrieval. This node only adds stance, then
           summarises both for the prompt.
         </p>
-        <div class="note">
-          <h4>Not captured in this run</h4>
-          <p>
-            The machine producing this trace could not hold both 400 MB BERTs in
-            memory at once, so this node's output is described from the code
-            rather than measured. Every other stage on this page is real.
-          </p>
-          <p>
-            The stance labels quoted in the report below therefore come from the
-            LLM's own <code>evidence_analysis</code>, which is a separate
-            judgement the model makes regardless — the BERT's labels are an
-            input signal to the prompt, never the verdict.
-          </p>
+        <div class="data">
+<div><span class="k">[1] </span><span class="pass">SUPPORTS</span>   <span class="cm">economictimes.indiatimes.com</span></div>
+<div><span class="k">[2] </span><span class="v">NEUTRAL</span>    <span class="cm">economictimes.indiatimes.com</span></div>
+<div><span class="k">[3] </span><span class="v">NEUTRAL</span>    <span class="cm">economictimes.indiatimes.com</span></div>
+<div> </div>
+<div><span class="k">counts          </span> <span class="v">{SUPPORTS: 1, REFUTES: 0, NEUTRAL: 2}</span></div>
+<div><span class="k">low_confidence  </span> <span class="v">0</span>  <span class="cm">of 3</span></div>
         </div>
+        <p>
+          On this claim the BERT and the LLM agreed item for item. They often do
+          not — and when they disagree the prompt instructs the model to follow
+          the evidence text, because this classifier is 73.6% accurate and
+          weakest exactly where it matters most (REFUTES, F1 0.74). Its label
+          reaches the prompt as <em>a signal with a confidence attached</em>,
+          never as the verdict.
+        </p>
         <div class="routed">
           route → unconditional edge → <b>generate</b>
         </div>
@@ -786,7 +805,7 @@
       <div class="rail"><div class="step-no">07</div></div>
       <div class="body">
         <h3><span class="node">generate</span>The only guaranteed LLM call</h3>
-        <div class="timing">2.89s · 1 call · llama-3.3-70b-versatile</div>
+        <div class="timing">3.6s · 1 call · openai/gpt-oss-120b on Groq</div>
         <p>
           Reached only with non-empty evidence, which is what makes "no
           evidence" cost zero tokens. The prompt is a composed LangChain
@@ -806,13 +825,32 @@
         </div>
         <div class="data">
 <div><span class="k">verdict        </span> <span class="pass">TRUE</span></div>
-<div><span class="k">confidence     </span> <span class="v">80</span></div>
+<div><span class="k">confidence     </span> <span class="v">92</span></div>
 <div><span class="k">claim_type     </span> <span class="v">statistical</span></div>
 <div><span class="k">llm_calls      </span> <span class="v">1</span>       <span class="cm">no retry needed</span></div>
 <div><span class="k">citation_retry </span> <span class="v">False</span>   <span class="cm">all evidence_index values in 1..3</span></div>
 <div><span class="k">assessments    </span> <span class="v">[1] SUPPORTS  direct=True</span></div>
 <div><span class="k">               </span> <span class="v">[2] NEUTRAL   direct=False</span></div>
 <div><span class="k">               </span> <span class="v">[3] NEUTRAL   direct=False</span></div>
+        </div>
+        <div class="note">
+          <h4>The model named here is not the one this was designed against</h4>
+          <p>
+            This trace was captured the day Groq retired
+            <code>llama-3.3-70b-versatile</code>. It answered at 13:59 and
+            returned <code>404 model_not_found</code> at 14:17 — the same key,
+            twenty minutes apart. <code>core/llm.py:50</code> checks the
+            configured models against <code>GET /openai/v1/models</code> at
+            startup precisely so this surfaces as a clear boot error rather than
+            a mid-request 404, and <code>.env.example</code> carries the warning
+            that Groq deprecates on a rolling basis.
+          </p>
+          <p>
+            Nothing about the pipeline changed — only <code>GROQ_MODEL</code>.
+            That is the payoff of putting the model behind
+            <code>get_llm()</code> and constraining its output to a Pydantic
+            schema: the swap was one line in <code>.env</code>.
+          </p>
         </div>
         <p>
           The numbering in <code>format_evidence()</code> is a contract with
@@ -832,7 +870,7 @@
       <div class="rail"><div class="step-no">08</div></div>
       <div class="body">
         <h3><span class="node">render</span>One renderer, three exits</h3>
-        <div class="timing">0.00s · 2,768 characters</div>
+        <div class="timing">0.00s · 2,117 characters</div>
         <p>
           Every path through the graph ends here — verified, abstained or
           rejected. None can return a bare state or a traceback. Audio is
@@ -847,7 +885,7 @@
         </div>
         <div class="data">
 <div><span class="k">outcome  </span> <span class="pass">verified</span></div>
-<div><span class="k">rendered </span> <span class="v">2,768 chars of markdown</span></div>
+<div><span class="k">rendered </span> <span class="v">2,117 chars of markdown</span></div>
 <div><span class="k">artifacts</span> <span class="v">{}</span>   <span class="cm">text input — no mp3 generated</span></div>
         </div>
       </div>
@@ -1038,25 +1076,29 @@
   <!-- ══ Output ════════════════════════════════════════════════════════════ -->
   <h2><span class="num">Output</span>What came back</h2>
   <p class="section-note">
-    The rendered markdown, abridged. The full response is 2,768 characters.
+    The rendered markdown, abridged. The full response is 2,117 characters.
   </p>
 
   <div class="data" style="border-left-color: var(--pass); white-space: normal">
 <div><span class="k"># Verification report</span></div>
 <div> </div>
 <div><span class="k">## Verdict</span></div>
-<div><span class="pass">**TRUE**</span> <span class="k">— 80% confidence · claim type: statistical</span></div>
+<div><span class="pass">**TRUE**</span> <span class="k">— 92% confidence · claim type: statistical</span></div>
 <div> </div>
 <div><span class="k">## Key findings</span></div>
-<div><span class="v">India's software exports reached 222 billion in 2024-25,</span></div>
-<div><span class="v">with an 11% increase from the previous year.  [1]</span></div>
-<div><span class="k">  > "The export of computer software and services, including</span></div>
-<div><span class="k">     ITeS and BPO, increased by 11 on a year-over-year basis</span></div>
-<div><span class="k">     to 222 billion in 2024-25"</span></div>
+<div><span class="v">India's software exports amounted to 222 billion dollars</span></div>
+<div><span class="v">in FY 2024-25.  [1]</span></div>
+<div><span class="k">  > "Exports of Computer Software and Services, including</span></div>
+<div><span class="k">     ITeS and BPO, reached 222 billion in 2024-25"</span></div>
+<div> </div>
+<div><span class="k">## Evidence</span></div>
+<div><span class="k">[2] </span><span class="v">NEUTRAL · directly relevant: no</span></div>
+<div><span class="k">    "discusses Gulf crisis impacts … but does not address</span></div>
+<div><span class="k">     software exports"</span></div>
 <div> </div>
 <div><span class="k">## Limitations</span></div>
-<div><span class="v">- The evidence does not provide a clear date of publication,</span></div>
-<div><span class="v">  which may affect its reliability.</span></div>
+<div><span class="v">- The source does not provide a precise publication date,</span></div>
+<div><span class="v">  limiting verification of timeliness.</span></div>
 <div> </div>
 <div><span class="k">---</span></div>
 <div><span class="k">outcome: `verified` · evidence: 3 · candidates: 35 · LLM calls: 1</span></div>
@@ -1065,20 +1107,28 @@
   <div class="note">
     <h4>Worth noticing</h4>
     <p>
-      The model reported 80%, not 95%, and volunteered the missing publication
-      date as a limitation — that date gap is a real, known property of the
-      current corpus, and the credibility scorer had already flagged it
-      (<code>date_reliable: false</code>, recency dropped from the weighting).
-      Evidence items 2 and 3 cleared the relevance floor but were marked
-      <code>directly_relevant: false</code>, which is the LLM catching what the
-      floor alone cannot: topically present, factually beside the point.
+      The model volunteered the missing publication date as a limitation — that
+      date gap is a real, known property of the current corpus, and the
+      credibility scorer had already flagged it independently
+      (<code>date_reliable: false</code>, recency dropped from the weighting
+      and the score recomputed on domain and source type alone).
+    </p>
+    <p>
+      Evidence items 2 and 3 cleared the relevance floor at 0.959 and 0.350 and
+      were still marked <code>directly_relevant: false</code>. That is the
+      division of labour the whole design rests on: the floor removes what is
+      <em>unrelated</em>, and only a reader — here, the LLM — can remove what is
+      <em>related but beside the point</em>. Item 2 is an article about India's
+      export figures that never mentions software. A system with only a
+      threshold would have counted it as corroboration.
     </p>
   </div>
 
   <footer>
-    Generated 2026-08-17 · VerifAI index <code>v1</code> ·
+    Captured 2026-08-17 · VerifAI index <code>v1</code> ·
     1,687 documents, 13,101 chunks · all-MiniLM-L6-v2 (dim 384) ·
-    relevance floor 0.25 · llama-3.3-70b-versatile
+    cross-encoder ms-marco-MiniLM · relevance floor 0.25 ·
+    openai/gpt-oss-120b on Groq
   </footer>
 
 </div>

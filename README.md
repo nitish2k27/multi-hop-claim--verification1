@@ -390,7 +390,8 @@ claim — *"India's software exports reached 222 billion dollars in 2024-25"* �
 from the keystroke in the browser to the rendered report, naming every file,
 function and line number on the path, with the real numbers each stage
 produced: 35 candidates → 8 after reranking → 5 above the floor → 3 articles
-after parent expansion → `TRUE` at 80% confidence, one LLM call, 6.91 seconds.
+after parent expansion → `TRUE` at 92% confidence, one LLM call, 22.5 seconds
+cold (5.2 s warm, through the API).
 
 ---
 
@@ -403,7 +404,7 @@ after parent expansion → `TRUE` at 80% confidence, one LLM call, 6.91 seconds.
 · **Chroma** — vector store · **rank-bm25** — sparse retrieval
 · **sentence-transformers** — embeddings + reranker
 · **transformers** — the two fine-tuned BERTs
-· **Groq** — `llama-3.3-70b-versatile`
+· **Groq** — `openai/gpt-oss-120b`
 · **Tavily** — web fallback · **pydantic-settings** — config
 
 Chosen for retriever composition and structured output specifically:
