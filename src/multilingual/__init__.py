@@ -1,1 +1,0 @@
-# Multilingual support package

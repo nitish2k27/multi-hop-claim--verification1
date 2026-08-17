@@ -457,16 +457,30 @@ requirements.txt` produced an environment that could not run this project.
 **`pyproject.toml` is now the single dependency source.** The README quickstart
 must say `pip install -e .`, never `pip install -r requirements.txt`.
 
-**Kept on purpose:** the rest of `src/` (M4/M5 source material — the plan's
-§2.2 move list), `app.py`, `data/processed` + `data/raw` (training provenance
-for the two BERTs), `data/.embed_cache` (makes re-ingest a 1s no-op),
-`data/chroma_db` (the M3 baseline), `notebooks/`, `ui/index.html`.
+**Kept on purpose:** `data/processed` + `data/raw` (training provenance for the
+two BERTs), `data/.embed_cache` (makes re-ingest a 1s no-op), `data/chroma_db`
+(the M3 baseline), `notebooks/`, `ui/index.html`.
 
-⚠ **`app.py` no longer imports cleanly** — it references
-`src.generation.report_generator`, which §2.1 lists as dead (the Colab/ngrok
-path) and which is now in `_trash/`. This is intended: `app.py` is kept only as
-the **SSE structure reference for M5**, not as runnable code. M5 replaces it
-with `serve/api.py` built on `graph.astream(stream_mode="updates")`.
+### Second pass — the v1 tree removed (2026-08-17)
+
+`src/` was retained through M4/M5 as source material. M5 shipped, so it went,
+along with the last files that referenced it. 59 tracked files deleted:
+
+| Removed | Why |
+|---|---|
+| `src/` (54 files) | Superseded by `core/` + `ingest/` + `serve/`. Nothing outside `src/` and `app.py` imported it. |
+| `app.py` | Was the SSE reference for M5; `serve/api.py` replaced it and it no longer imported cleanly. |
+| `configs/` | Held only `regional_scraper_config.yaml`, belonging to the deleted scrapers. `configs/groq_token.txt` was already gone. |
+| `docs/REGIONAL_INDIAN_SCRAPER_GUIDE.md` | Documented a deleted scraper. |
+| `scripts/prepare_fever_data_fixed.py` | Unreferenced; `eval_harness/prepare_datasets.py` supersedes it. |
+
+**Salvaged first:** the 363 RSS/Atom feed URLs buried in
+`src/data_collection/*.py` were extracted to `ingest/sources.yaml` (130
+domains) before deletion. The scraper code was replaceable; a curated feed list
+is real work.
+
+Verified after: all 36 tests pass, and `docs/` now holds
+`execution-trace.html` instead.
 
 Verified after cleanup: all three exits still run, `ingest.run --status` works,
 `eval_harness.report` still generates.
@@ -874,33 +888,50 @@ Post-cleanup. `[brackets]` = planned, not yet written.
 ```
 core/           __init__.py config.py llm.py text.py models.py
                 credibility.py compressors.py prompts.py
-ingest/         run.py clean.py chunk.py index.py [discover.py fetch.py sources.yaml]
-serve/          cli.py graph.py schemas.py retriever.py [api.py]
-                nodes/  gate.py retrieve.py stance.py generate.py
-                        terminal.py render.py [adapt.py language.py websearch.py]
+ingest/         run.py clean.py chunk.py index.py sources.yaml [discover.py fetch.py]
+serve/          cli.py graph.py schemas.py retriever.py api.py     ← the backend
+                nodes/  adapt.py language.py gate.py retrieve.py websearch.py
+                        stance.py generate.py terminal.py render.py export.py
+frontend/       src/{App.jsx,api.js,history.js,components/}         ← the frontend
+                vite.config.js package.json    builds into ui/dist/
+ui/             index.html   no-build fallback served when dist/ is absent
 eval_harness/   prepare_datasets.py run_eval.py metrics.py baseline.py report.py
                 datasets/{known_item_200,fever_dev_200,adversarial_20}.jsonl
                 results/{retrieval_ab,floor_sweep,system_eval}.json RESULTS.md
-tests/          conftest.py  test_silent_failures.py   13 tests, mutation-checked
+tests/          conftest.py test_silent_failures.py test_multimodal.py
+                make_fixtures.py fixtures/                 36 tests, all passing
 demo/           run_demo.py  screenshots/              GIF goes here
-scripts/        cleanup.py  prepare_fever_data_fixed.py (BERT training provenance)
+docs/           execution-trace.html   one claim, file by file, line by line
+scripts/        cleanup.py
 notebooks/      claim-detection.ipynb  stance-detection.ipynb  (model provenance)
-ui/             index.html          — reconnected at M5
 
 index/          CURRENT -> v1/                     122 MB, gitignored
-models/         claim_detector/final (418 MB)  stance_detector/final (414 MB)
+models/         claim_detector/final (418 MB)  stance_detector/final (413 MB)
 data/           processed/news_articles_rag.csv    the M1 input
                 chroma_db/                         the M3 baseline — DO NOT TOUCH
                 .embed_cache/                      makes re-ingest a 1s no-op
                 processed/*_train.csv, raw/fever_* BERT training provenance
-_trash/         415 MB of removed files — delete once verified
-
-src/            OLD — M4/M5 source material only; goes after M5
-app.py          OLD — SSE reference for M5; does NOT import cleanly any more
-README.md       OLD — describes the pre-rebuild system; M6 replaces it
 ```
 
-**Top-level files (8):** `.env` `.env.example` `.gitignore` `BUILD_PLAN.md`
-`CLAUDE.md` `pyproject.toml` `README.md` `app.py`
+**Top-level files (6):** `.env` `.env.example` `.gitignore` `BUILD_PLAN.md`
+`CLAUDE.md` `pyproject.toml` `README.md`
 
-Down from 22 files + 5 stray dirs before cleanup.
+Down from 22 files + 5 stray dirs before cleanup. `src/`, `app.py`, `configs/`
+and `_trash/` are all gone.
+
+### On the repo layout
+
+The Python packages sit at the repo root rather than under a `backend/`
+wrapper. This is deliberate and should stay:
+
+- `serve/` **is** the backend; `frontend/` **is** the frontend. The separation
+  a reviewer looks for is already there.
+- The two-tier split (`ingest/` writes, `serve/` reads, files are the only
+  interface) is the project's whole architectural claim. Burying it one level
+  down under `backend/` makes it less visible, not more standard.
+- `pyproject.toml` at root declaring `core`, `ingest`, `serve` is the normal
+  layout for a Python-primary repo, and it keeps `python -m ingest.run` and
+  `python -m serve.cli` working as documented.
+
+A `backend/` wrapper would rewrite every import in the codebase, the tests, the
+eval harness and the demo, in exchange for a directory name.

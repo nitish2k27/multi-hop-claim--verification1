@@ -1,0 +1,632 @@
+# RSS/Atom feeds for the Tier 1 crawl pipeline.
+#
+# Extracted from the v1 scrapers in src/data_collection/ before that tree was
+# deleted. They were the only thing in it worth keeping: the code around them
+# was superseded by ingest/, but a curated feed list is real work and is not
+# recoverable by rewriting the scraper.
+#
+# 363 feeds across 130 domains.
+
+feeds:
+  # 123telugu.com
+  - https://www.123telugu.com/rss.xml
+
+  # a.dj.com
+  - https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+  - https://feeds.a.dj.com/rss/RSSWSJD.xml
+  - https://feeds.a.dj.com/rss/RSSWorldNews.xml
+
+  # abc.net.au
+  - https://www.abc.net.au/news/feed/45910/rss.xml
+  - https://www.abc.net.au/news/feed/51120/rss.xml
+  - https://www.abc.net.au/news/feed/51892/rss.xml
+
+  # ajitjalandhar.com
+  - https://www.ajitjalandhar.com/rss/diaspora
+  - https://www.ajitjalandhar.com/rss/politics
+  - https://www.ajitjalandhar.com/rss/punjab
+
+  # aljazeera.com
+  - https://www.aljazeera.com/xml/rss/africa.xml
+  - https://www.aljazeera.com/xml/rss/all.xml
+  - https://www.aljazeera.com/xml/rss/business.xml
+  - https://www.aljazeera.com/xml/rss/middleeast.xml
+  - https://www.aljazeera.com/xml/rss/politics.xml
+  - https://www.aljazeera.com/xml/rss/technology.xml
+
+  # amarujala.com
+  - https://www.amarujala.com/rss/entertainment.xml
+  - https://www.amarujala.com/rss/india-news.xml
+  - https://www.amarujala.com/rss/uttar-pradesh.xml
+
+  # anandabazar.com
+  - https://www.anandabazar.com/rss/entertainment
+  - https://www.anandabazar.com/rss/politics
+  - https://www.anandabazar.com/rss/west-bengal
+
+  # andhrajyothy.com
+  - https://www.andhrajyothy.com/rss/entertainment
+  - https://www.andhrajyothy.com/rss/politics
+  - https://www.andhrajyothy.com/rss/telangana
+
+  # androidauthority.com
+  - https://www.androidauthority.com/feed/
+
+  # apnews.com
+  - https://feeds.apnews.com/rss/apf-business
+  - https://feeds.apnews.com/rss/apf-intlnews
+  - https://feeds.apnews.com/rss/apf-politics
+  - https://feeds.apnews.com/rss/apf-science
+  - https://feeds.apnews.com/rss/apf-technology
+  - https://feeds.apnews.com/rss/apf-topnews
+  - https://feeds.apnews.com/rss/apf-usnews
+
+  # arabnews.com
+  - https://www.arabnews.com/rss.xml
+  - https://www.arabnews.com/taxonomy/term/166/feed
+  - https://www.arabnews.com/taxonomy/term/46/feed
+
+  # arstechnica.com
+  - http://feeds.arstechnica.com/arstechnica/business
+  - http://feeds.arstechnica.com/arstechnica/index
+  - http://feeds.arstechnica.com/arstechnica/technology-lab
+
+  # asia.nikkei.com
+  - https://asia.nikkei.com/rss/feed/nar
+  - https://asia.nikkei.com/rss/feed/nar-business
+  - https://asia.nikkei.com/rss/feed/nar-tech
+
+  # atlanticcouncil.org
+  - https://www.atlanticcouncil.org/feed/
+
+  # bbci.co.uk
+  - http://feeds.bbci.co.uk/news/business/rss.xml
+  - http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml
+  - http://feeds.bbci.co.uk/news/health/rss.xml
+  - http://feeds.bbci.co.uk/news/rss.xml
+  - http://feeds.bbci.co.uk/news/technology/rss.xml
+  - http://feeds.bbci.co.uk/news/world/africa/rss.xml
+  - http://feeds.bbci.co.uk/news/world/asia/rss.xml
+  - http://feeds.bbci.co.uk/news/world/europe/rss.xml
+  - http://feeds.bbci.co.uk/news/world/latin_america/rss.xml
+  - http://feeds.bbci.co.uk/news/world/middle_east/rss.xml
+  - http://feeds.bbci.co.uk/news/world/rss.xml
+  - https://feeds.bbci.co.uk/mundo/rss.xml
+  - https://feeds.bbci.co.uk/mundo/temas/economia/rss.xml
+  - https://feeds.bbci.co.uk/mundo/temas/tecnologia/rss.xml
+  - https://feeds.bbci.co.uk/news/rss.xml
+
+  # behindwoods.com
+  - https://www.behindwoods.com/rss/tamil-cinema-news.xml
+
+  # bengali.oneindia.com
+  - https://bengali.oneindia.com/rss/bengali-news-fb.xml
+
+  # bhaskar.com
+  - https://www.bhaskar.com/rss-feed/1061/
+  - https://www.bhaskar.com/rss-feed/1062/
+  - https://www.bhaskar.com/rss-feed/1063/
+
+  # billboard.com
+  - https://www.billboard.com/c/charts/feed/
+  - https://www.billboard.com/c/music/feed/
+  - https://www.billboard.com/c/pop/feed/
+  - https://www.billboard.com/feed/
+
+  # bloomberg.com
+  - https://feeds.bloomberg.com/markets/news.rss
+  - https://feeds.bloomberg.com/technology/news.rss
+
+  # bollywoodhungama.com
+  - https://www.bollywoodhungama.com/rss/celebrity.xml
+  - https://www.bollywoodhungama.com/rss/movie-reviews.xml
+  - https://www.bollywoodhungama.com/rss/news.xml
+
+  # brookings.edu
+  - https://www.brookings.edu/feed/
+  - https://www.brookings.edu/topic/international-affairs/feed/
+
+  # carnegieendowment.org
+  - https://carnegieendowment.org/rss/publications.xml
+
+  # cfr.org
+  - https://www.cfr.org/rss-feeds/publication/backgrounder
+  - https://www.cfr.org/rss-feeds/publication/blog
+
+  # chathamhouse.org
+  - https://www.chathamhouse.org/rss.xml
+
+  # csis.org
+  - https://www.csis.org/rss.xml
+
+  # deadline.com
+  - https://deadline.com/category/film/feed/
+  - https://deadline.com/category/music/feed/
+  - https://deadline.com/category/tv/feed/
+  - https://deadline.com/feed/
+
+  # deccanherald.com
+  - https://www.deccanherald.com/rss/business.xml
+  - https://www.deccanherald.com/rss/international.xml
+  - https://www.deccanherald.com/rss/national.xml
+
+  # defensenews.com
+  - https://www.defensenews.com/rss/global/
+  - https://www.defensenews.com/rss/top-news/
+
+  # dharitri.com
+  - https://www.dharitri.com/rss/odisha
+  - https://www.dharitri.com/rss/politics
+  - https://www.dharitri.com/rss/tribal
+
+  # dinamalar.com
+  - https://www.dinamalar.com/rss/rss_cinema_tamil.xml
+  - https://www.dinamalar.com/rss/rss_news_tamil.xml
+
+  # ecfr.eu
+  - https://ecfr.eu/rss.xml
+
+  # economictimes.indiatimes.com
+  - https://economictimes.indiatimes.com/industry/rssfeeds/13352306.cms
+  - https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms
+  - https://economictimes.indiatimes.com/rssfeedsdefault.cms
+  - https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms
+
+  # eenadu.net
+  - https://www.eenadu.net/rss/andhra-pradesh-news.xml
+  - https://www.eenadu.net/rss/entertainment.xml
+  - https://www.eenadu.net/rss/telangana-news.xml
+
+  # elle.com
+  - https://www.elle.com/rss/celebrity.xml
+  - https://www.elle.com/rss/culture.xml
+
+  # elpais.com
+  - https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada
+  - https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada
+  - https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada
+  - https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada
+
+  # english.alarabiya.net
+  - https://english.alarabiya.net/rss.xml
+
+  # eonline.com
+  - https://www.eonline.com/feeds/rss/movies.xml
+  - https://www.eonline.com/feeds/rss/music.xml
+  - https://www.eonline.com/feeds/rss/topstories.xml
+  - https://www.eonline.com/feeds/rss/tv.xml
+
+  # esakal.com
+  - https://www.esakal.com/rss/entertainment
+  - https://www.esakal.com/rss/maharashtra
+  - https://www.esakal.com/rss/politics
+
+  # euronews.com
+  - https://www.euronews.com/rss?format=mrss
+  - https://www.euronews.com/rss?format=mrss&level=theme&theme=business
+  - https://www.euronews.com/rss?format=mrss&level=theme&theme=europe
+  - https://www.euronews.com/rss?format=mrss&level=theme&theme=tech
+  - https://www.euronews.com/rss?format=mrss&level=theme&theme=world
+
+  # ew.com
+  - https://ew.com/celebrity/feed/
+  - https://ew.com/feed/
+  - https://ew.com/movies/feed/
+  - https://ew.com/music/feed/
+  - https://ew.com/tv/feed/
+
+  # factcheck.org
+  - https://www.factcheck.org/feed/
+
+  # feedburner.com
+  - https://feeds.feedburner.com/ndtv/celebrity
+  - https://feeds.feedburner.com/ndtv/entertainment
+  - https://feeds.feedburner.com/ndtv/movies
+  - https://feeds.feedburner.com/ndtvnews-india-news
+  - https://feeds.feedburner.com/ndtvnews-top-stories
+  - https://feeds.feedburner.com/ndtvprofit-latest
+
+  # filmfare.com
+  - https://www.filmfare.com/feeds/bollywood.xml
+  - https://www.filmfare.com/feeds/celebrity.xml
+  - https://www.filmfare.com/feeds/latest-news.xml
+
+  # foreignaffairs.com
+  - https://www.foreignaffairs.com/regions/rss.xml
+  - https://www.foreignaffairs.com/rss.xml
+
+  # foreignpolicy.com
+  - https://foreignpolicy.com/category/politics/feed/
+  - https://foreignpolicy.com/category/security/feed/
+  - https://foreignpolicy.com/feed/
+
+  # france24.com
+  - https://www.france24.com/en/africa/rss
+  - https://www.france24.com/en/business/rss
+  - https://www.france24.com/en/europe/rss
+  - https://www.france24.com/en/middle-east/rss
+  - https://www.france24.com/en/rss
+  - https://www.france24.com/en/technology/rss
+
+  # francetvinfo.fr
+  - https://www.francetvinfo.fr/economie.rss
+  - https://www.francetvinfo.fr/internet.rss
+  - https://www.francetvinfo.fr/titres.rss
+
+  # frandroid.com
+  - https://www.frandroid.com/feed
+
+  # ft.com
+  - https://www.ft.com/rss/companies
+  - https://www.ft.com/rss/home/uk
+  - https://www.ft.com/rss/home/world
+  - https://www.ft.com/rss/technology
+  - https://www.ft.com/rss/world/global-economy
+
+  # gamesindustry.biz
+  - https://www.gamesindustry.biz/feed
+
+  # gatewayhouse.in
+  - https://www.gatewayhouse.in/feed/
+
+  # gujarati.oneindia.com
+  - https://gujarati.oneindia.com/rss/gujarati-news-fb.xml
+
+  # gujaratsamachar.com
+  - https://www.gujaratsamachar.com/rss/business
+  - https://www.gujaratsamachar.com/rss/gujarat
+  - https://www.gujaratsamachar.com/rss/politics
+
+  # heise.de
+  - https://www.heise.de/rss/heise-atom.xml
+
+  # hindi.oneindia.com
+  - https://hindi.oneindia.com/rss/hindi-news-fb.xml
+
+  # hindustantimes.com
+  - https://www.hindustantimes.com/feeds/rss/bollywood/rssfeed.xml
+  - https://www.hindustantimes.com/feeds/rss/business-news/rssfeed.xml
+  - https://www.hindustantimes.com/feeds/rss/entertainment/rssfeed.xml
+  - https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml
+  - https://www.hindustantimes.com/feeds/rss/tv/rssfeed.xml
+  - https://www.hindustantimes.com/feeds/rss/world-news/rssfeed.xml
+
+  # hipertextual.com
+  - https://hipertextual.com/feed
+
+  # hollywoodreporter.com
+  - https://www.hollywoodreporter.com/c/movies/feed/
+  - https://www.hollywoodreporter.com/c/music/feed/
+  - https://www.hollywoodreporter.com/c/tv/feed/
+  - https://www.hollywoodreporter.com/feed/
+
+  # indianexpress.com
+  - https://indianexpress.com/feed/
+  - https://indianexpress.com/section/business/feed/
+  - https://indianexpress.com/section/india/feed/
+  - https://indianexpress.com/section/technology/feed/
+
+  # indiatoday.in
+  - https://www.indiatoday.in/rss/1206514
+  - https://www.indiatoday.in/rss/1206577
+  - https://www.indiatoday.in/rss/1206578
+
+  # janes.com
+  - https://www.janes.com/feeds/news.xml
+
+  # japantimes.co.jp
+  - https://www.japantimes.co.jp/feed/
+  - https://www.japantimes.co.jp/news/business/feed/
+  - https://www.japantimes.co.jp/news/science-health/feed/
+
+  # justjared.com
+  - https://www.justjared.com/feed/
+
+  # kannada.oneindia.com
+  - https://kannada.oneindia.com/rss/kannada-news-fb.xml
+
+  # kannada.tv9.com
+  - https://kannada.tv9.com/rss/entertainment
+  - https://kannada.tv9.com/rss/karnataka
+  - https://kannada.tv9.com/rss/politics
+
+  # kr-asia.com
+  - https://kr-asia.com/feed
+
+  # lefigaro.fr
+  - https://www.lefigaro.fr/rss/figaro_international.xml
+  - https://www.lefigaro.fr/rss/figaro_politique.xml
+
+  # lemonde.fr
+  - https://www.lemonde.fr/economie/rss_full.xml
+  - https://www.lemonde.fr/international/rss_full.xml
+  - https://www.lemonde.fr/pixels/rss_full.xml
+  - https://www.lemonde.fr/politique/rss_full.xml
+  - https://www.lemonde.fr/rss/une.xml
+
+  # livemint.com
+  - https://www.livemint.com/rss/markets
+  - https://www.livemint.com/rss/news
+  - https://www.livemint.com/rss/politics
+  - https://www.livemint.com/rss/technology
+
+  # lokmat.com
+  - https://www.lokmat.com/rss/entertainment/
+  - https://www.lokmat.com/rss/maharashtra/
+  - https://www.lokmat.com/rss/politics/
+
+  # macrumors.com
+  - https://feeds.macrumors.com/MacRumors-All
+
+  # majha.abplive.com
+  - https://majha.abplive.com/rss/entertainment
+  - https://majha.abplive.com/rss/maharashtra
+  - https://majha.abplive.com/rss/politics
+
+  # malayalam.oneindia.com
+  - https://malayalam.oneindia.com/rss/malayalam-news-fb.xml
+
+  # manoramaonline.com
+  - https://www.manoramaonline.com/rss/entertainment
+  - https://www.manoramaonline.com/rss/kerala
+  - https://www.manoramaonline.com/rss/politics
+
+  # marathi.oneindia.com
+  - https://marathi.oneindia.com/rss/marathi-news-fb.xml
+
+  # mathrubhumi.com
+  - https://www.mathrubhumi.com/rss/entertainment
+  - https://www.mathrubhumi.com/rss/kerala
+  - https://www.mathrubhumi.com/rss/politics
+
+  # middleeasteye.net
+  - https://www.middleeasteye.net/news/rss.xml
+  - https://www.middleeasteye.net/rss.xml
+
+  # nature.com
+  - https://www.nature.com/subjects/computer-science.rss
+  - https://www.nature.com/subjects/machine-learning.rss
+
+  # navbharattimes.indiatimes.com
+  - https://navbharattimes.indiatimes.com/rss/entertainment.cms
+  - https://navbharattimes.indiatimes.com/rss/india.cms
+  - https://navbharattimes.indiatimes.com/rssfeedsdefault.cms
+
+  # news.google.com
+  - https://news.google.com/rss/topics/CAAqJQgKIh9DQkFTRVFvSUwyMHZNRE55YXpBU0JXVnVMVWRDS0FBUAE?hl=en-IN&gl=IN&ceid=IN:en
+  - https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pKVGlnQVAB?hl=en-IN&gl=IN&ceid=IN:en
+
+  # news18.com
+  - https://www.news18.com/rss/business.xml
+  - https://www.news18.com/rss/india.xml
+  - https://www.news18.com/rss/tech.xml
+
+  # numerama.com
+  - https://www.numerama.com/rss/news.rss
+
+  # orfonline.org
+  - https://www.orfonline.org/feed/
+
+  # pagesix.com
+  - https://pagesix.com/feed/
+
+  # people.com
+  - https://people.com/celebrity/feed/
+  - https://people.com/feed/
+  - https://people.com/movies/feed/
+  - https://people.com/music/feed/
+  - https://people.com/tv/feed/
+
+  # pinkvilla.com
+  - https://www.pinkvilla.com/entertainment/bollywood/rss.xml
+  - https://www.pinkvilla.com/entertainment/rss.xml
+  - https://www.pinkvilla.com/rss.xml
+
+  # pitchfork.com
+  - https://pitchfork.com/rss/features/
+  - https://pitchfork.com/rss/news/
+  - https://pitchfork.com/rss/reviews/albums/
+
+  # politico.eu
+  - https://www.politico.eu/feed/
+  - https://www.politico.eu/section/politics/feed/
+
+  # polygon.com
+  - https://www.polygon.com/rss/index.xml
+
+  # prajavani.net
+  - https://www.prajavani.net/rss/entertainment
+  - https://www.prajavani.net/rss/karnataka
+  - https://www.prajavani.net/rss/politics
+
+  # ptcnews.tv
+  - https://www.ptcnews.tv/rss/agriculture
+  - https://www.ptcnews.tv/rss/politics
+  - https://www.ptcnews.tv/rss/punjab
+
+  # rand.org
+  - https://www.rand.org/content/rand/news.rss.xml
+
+  # reuters.com
+  - https://feeds.reuters.com/reuters/businessNews
+  - https://feeds.reuters.com/reuters/entertainment
+  - https://feeds.reuters.com/reuters/politicsNews
+  - https://feeds.reuters.com/reuters/technologyNews
+  - https://feeds.reuters.com/reuters/topNews
+  - https://feeds.reuters.com/reuters/worldNews
+
+  # robotics.sciencemag.org
+  - https://robotics.sciencemag.org/rss/current.xml
+
+  # rollingstone.com
+  - https://www.rollingstone.com/culture/feed/
+  - https://www.rollingstone.com/feed/
+  - https://www.rollingstone.com/music/feed/
+  - https://www.rollingstone.com/tv-movies/feed/
+
+  # rss.cbc.ca
+  - https://rss.cbc.ca/lineup/business.xml
+  - https://rss.cbc.ca/lineup/technology.xml
+  - https://rss.cbc.ca/lineup/topstories.xml
+
+  # rss.cnn.com
+  - http://rss.cnn.com/rss/edition.rss
+  - http://rss.cnn.com/rss/edition_africa.rss
+  - http://rss.cnn.com/rss/edition_asia.rss
+  - http://rss.cnn.com/rss/edition_entertainment.rss
+  - http://rss.cnn.com/rss/edition_europe.rss
+  - http://rss.cnn.com/rss/edition_technology.rss
+  - http://rss.cnn.com/rss/edition_world.rss
+  - http://rss.cnn.com/rss/money_latest.rss
+
+  # rss.dw.com
+  - https://rss.dw.com/rdf/rss-de-all
+  - https://rss.dw.com/rdf/rss-de-pol
+  - https://rss.dw.com/rdf/rss-de-welt
+  - https://rss.dw.com/rdf/rss-de-wirtschaft
+  - https://rss.dw.com/rdf/rss-de-wissenschaft
+  - https://rss.dw.com/rdf/rss-en-all
+  - https://rss.dw.com/rdf/rss-en-bus
+  - https://rss.dw.com/rdf/rss-en-eu
+  - https://rss.dw.com/rdf/rss-en-pol
+  - https://rss.dw.com/rdf/rss-en-sci
+  - https://rss.dw.com/rdf/rss-en-world
+
+  # rss.golem.de
+  - https://rss.golem.de/rss.php?feed=ATOM1.0
+
+  # sakshi.com
+  - https://www.sakshi.com/rss/andhra-pradesh
+  - https://www.sakshi.com/rss/entertainment
+  - https://www.sakshi.com/rss/telangana
+
+  # sambad.in
+  - https://sambad.in/rss/culture
+  - https://sambad.in/rss/odisha
+  - https://sambad.in/rss/politics
+
+  # sandesh.com
+  - https://www.sandesh.com/rss/business
+  - https://www.sandesh.com/rss/gujarat
+  - https://www.sandesh.com/rss/politics
+
+  # sangbadpratidin.in
+  - https://www.sangbadpratidin.in/rss/entertainment
+  - https://www.sangbadpratidin.in/rss/politics
+  - https://www.sangbadpratidin.in/rss/west-bengal
+
+  # scmp.com
+  - https://www.scmp.com/rss/2/feed
+  - https://www.scmp.com/rss/322291/feed
+  - https://www.scmp.com/rss/91/feed
+
+  # sifted.eu
+  - https://sifted.eu/feed
+
+  # sify.com
+  - https://www.sify.com/rss/movies-tamil-news.xml
+  - https://www.sify.com/rss/movies-telugu-news.xml
+
+  # snopes.com
+  - https://www.snopes.com/feed/
+
+  # spectrum.ieee.org
+  - https://spectrum.ieee.org/rss/blog/tech-talk
+  - https://spectrum.ieee.org/rss/robotics
+
+  # spiegel.de
+  - https://www.spiegel.de/international/index.rss
+
+  # tamil.oneindia.com
+  - https://tamil.oneindia.com/rss/tamil-news-fb.xml
+
+  # tech.eu
+  - https://tech.eu/feed/
+
+  # techcrunch.com
+  - https://techcrunch.com/category/artificial-intelligence/feed/
+  - https://techcrunch.com/category/startups/feed/
+  - https://techcrunch.com/feed/
+
+  # techinasia.com
+  - https://www.techinasia.com/rss
+
+  # telugu.oneindia.com
+  - https://telugu.oneindia.com/rss/telugu-news-fb.xml
+
+  # thanthitv.com
+  - https://www.thanthitv.com/rss/entertainment
+  - https://www.thanthitv.com/rss/news
+  - https://www.thanthitv.com/rss/politics
+
+  # thediplomat.com
+  - https://thediplomat.com/feed/
+  - https://thediplomat.com/regions/east-asia/feed/
+  - https://thediplomat.com/regions/south-asia/feed/
+
+  # theglobeandmail.com
+  - https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/business/
+  - https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/news/
+  - https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/technology/
+
+  # theguardian.com
+  - https://www.theguardian.com/business/rss
+  - https://www.theguardian.com/politics/rss
+  - https://www.theguardian.com/science/rss
+  - https://www.theguardian.com/technology/rss
+  - https://www.theguardian.com/world/rss
+
+  # thehindu.com
+  - https://www.thehindu.com/business/feeder/default.rss
+  - https://www.thehindu.com/news/international/feeder/default.rss
+  - https://www.thehindu.com/news/national/feeder/default.rss
+  - https://www.thehindu.com/sci-tech/feeder/default.rss
+
+  # timesofindia.indiatimes.com
+  - https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms
+  - https://timesofindia.indiatimes.com/rssfeeds/1081479906.cms
+  - https://timesofindia.indiatimes.com/rssfeeds/1898024.cms
+  - https://timesofindia.indiatimes.com/rssfeeds/1898055.cms
+  - https://timesofindia.indiatimes.com/rssfeeds/1899270.cms
+  - https://timesofindia.indiatimes.com/rssfeeds/5880659.cms
+  - https://timesofindia.indiatimes.com/rssfeedstopstories.cms
+
+  # timesofisrael.com
+  - https://www.timesofisrael.com/feed/
+
+  # tmz.com
+  - https://www.tmz.com/rss.xml
+
+  # usmagazine.com
+  - https://www.usmagazine.com/celebrity-news/feed/
+  - https://www.usmagazine.com/entertainment/feed/
+  - https://www.usmagazine.com/feed/
+
+  # variety.com
+  - https://variety.com/c/digital/feed/
+  - https://variety.com/c/film/feed/
+  - https://variety.com/c/music/feed/
+  - https://variety.com/c/tv/feed/
+  - https://variety.com/feed/
+
+  # vikatan.com
+  - https://www.vikatan.com/rss/cinema
+  - https://www.vikatan.com/rss/news
+  - https://www.vikatan.com/rss/politics
+
+  # vogue.com
+  - https://www.vogue.com/feed/celebrity
+  - https://www.vogue.com/feed/culture
+
+  # wired.com
+  - https://www.wired.com/feed/category/business/rss
+  - https://www.wired.com/feed/category/science/rss
+  - https://www.wired.com/feed/rss
+
+  # xataka.com
+  - https://www.xataka.com/index.xml
+
+  # zeenews.india.com
+  - https://zeenews.india.com/rss/business.xml
+  - https://zeenews.india.com/rss/india-national-news.xml
+  - https://zeenews.india.com/rss/technology-news.xml
