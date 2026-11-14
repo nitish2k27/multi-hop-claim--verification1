@@ -7,9 +7,10 @@ checkable assertion straight to `reject`, before any retrieval or LLM call.
 
 WHAT THIS MODEL ACTUALLY DOES
 -----------------------------
-Its reported test accuracy is 1.00, which is not a good sign — a perfect score
-on 280k examples means the task was separable, not that the model is perfect.
-Probing it by hand shows what it learned:
+Its reported test accuracy is 1.00, and that is train/test leakage: every
+negative training example is one of 106 synthetic template strings, and every
+test negative appears verbatim in training. Probing it by hand shows what it
+actually learned:
 
     India's GDP grew 8% in 2024              0.9999  claim
     the moon is square in shape              0.9992  claim      <- correct: false, but a claim

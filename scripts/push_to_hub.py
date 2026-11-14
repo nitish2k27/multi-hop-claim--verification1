@@ -52,11 +52,13 @@ CARDS = {
         "labels": "`LABEL_0` = not a claim · `LABEL_1` = a claim",
         "caveat": """## Read this before trusting the accuracy
 
-This model reports **1.00 test accuracy**, and that is a red flag rather than a
-result.
+This model reports **1.00 test accuracy**, and that number is train/test
+leakage, not a result. The positives are FEVER claims; the negatives are all
+synthetic — 140,356 rows drawn from only 106 template strings — and every test
+negative appears verbatim in the training set.
 
-Probed by hand, it separates *declarative sentences* from *questions and
-opinions* — which is what its training negatives actually were. It does **not**
+Probed by hand on real input, it separates *declarative sentences* from
+*questions and opinions*, the shapes its templates had. It does **not**
 judge verifiability: the string `"asdkjh askjdh"` scores 0.997 as a claim.
 
 In VerifAI it is used for exactly one thing: a cheap filter that keeps

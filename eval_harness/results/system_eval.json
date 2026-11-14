@@ -1,5 +1,7 @@
 {
   "confident_threshold": 70,
+  "web_search_enabled": false,
+  "measures": "corpus-only behaviour: abstention means the indexed corpus could not answer. This is the number the two-tier architecture claims.",
   "adversarial": {
     "n": 20,
     "abstained": 20,
@@ -133,7 +135,7 @@
         "mechanism": "llm_judgement",
         "evidence": 2,
         "verdict": "UNVERIFIABLE",
-        "confidence": 0
+        "confidence": 20
       },
       {
         "id": "adv-15",
@@ -142,7 +144,7 @@
         "mechanism": "llm_judgement",
         "evidence": 1,
         "verdict": "UNVERIFIABLE",
-        "confidence": 0
+        "confidence": 20
       },
       {
         "id": "adv-16",
@@ -151,7 +153,7 @@
         "mechanism": "llm_judgement",
         "evidence": 3,
         "verdict": "UNVERIFIABLE",
-        "confidence": 0
+        "confidence": 12
       },
       {
         "id": "adv-17",
@@ -160,7 +162,7 @@
         "mechanism": "llm_judgement",
         "evidence": 7,
         "verdict": "UNVERIFIABLE",
-        "confidence": 0
+        "confidence": 20
       },
       {
         "id": "adv-18",
@@ -210,17 +212,16 @@
     },
     "failures": []
   },
-  "elapsed_seconds": 150.5,
   "fever": {
     "n": 200,
-    "answered": 5,
-    "abstained": 195,
+    "answered": 4,
+    "abstained": 196,
     "rejected": 0,
-    "abstain_rate": 0.975,
+    "abstain_rate": 0.98,
     "verdict_accuracy": 1.0,
     "false_confidence": 0,
     "false_confidence_rate@70": 0.0,
-    "mean_confidence_when_correct": 78,
+    "mean_confidence_when_correct": 82.5,
     "mean_confidence_when_wrong": null
   },
   "fever_details": [
@@ -446,7 +447,7 @@
       "gold": "SUPPORTS",
       "outcome": "verified",
       "verdict": "UNVERIFIABLE",
-      "confidence": 0,
+      "confidence": 20,
       "evidence": 1
     },
     {
@@ -761,7 +762,7 @@
       "gold": "SUPPORTS",
       "outcome": "verified",
       "verdict": "UNVERIFIABLE",
-      "confidence": 0,
+      "confidence": 20,
       "evidence": 1
     },
     {
@@ -1067,7 +1068,7 @@
       "gold": "SUPPORTS",
       "outcome": "verified",
       "verdict": "TRUE",
-      "confidence": 70,
+      "confidence": 85,
       "evidence": 2
     },
     {
@@ -1120,7 +1121,7 @@
       "claim": "The Indian Army comprises part of the country's active defense personnel.",
       "gold": "SUPPORTS",
       "outcome": "verified",
-      "verdict": "MOSTLY_TRUE",
+      "verdict": "TRUE",
       "confidence": 80,
       "evidence": 1
     },
@@ -1418,7 +1419,7 @@
       "gold": "REFUTES",
       "outcome": "verified",
       "verdict": "UNVERIFIABLE",
-      "confidence": 0,
+      "confidence": 20,
       "evidence": 1
     },
     {
@@ -1499,7 +1500,7 @@
       "gold": "REFUTES",
       "outcome": "verified",
       "verdict": "UNVERIFIABLE",
-      "confidence": 0,
+      "confidence": 20,
       "evidence": 1
     },
     {
@@ -1688,7 +1689,7 @@
       "gold": "REFUTES",
       "outcome": "verified",
       "verdict": "FALSE",
-      "confidence": 80,
+      "confidence": 85,
       "evidence": 1
     },
     {
@@ -1769,7 +1770,7 @@
       "gold": "REFUTES",
       "outcome": "verified",
       "verdict": "UNVERIFIABLE",
-      "confidence": 0,
+      "confidence": 20,
       "evidence": 2
     },
     {
@@ -1831,8 +1832,8 @@
       "claim": "Resident Evil is an unadapted video game.",
       "gold": "REFUTES",
       "outcome": "verified",
-      "verdict": "FALSE",
-      "confidence": 80,
+      "verdict": "UNVERIFIABLE",
+      "confidence": 20,
       "evidence": 1
     },
     {
@@ -2025,5 +2026,5 @@
       "evidence": 0
     }
   ],
-  "fever_from_previous_run": true
+  "elapsed_seconds": 1161.1
 }

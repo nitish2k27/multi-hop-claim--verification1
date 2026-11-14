@@ -80,9 +80,9 @@ and one from its **tail** (beyond it). The head slice is the control.
 | Old index | 0.95 | 0.98 | 0.965 |
 | New index | 1.00 | 1.00 | 1.000 |
 
-The two indexes are statistically tied on the head slice and 41 points apart on
-recall@1 for the tail. That gap is the truncation bug, isolated — same corpus,
-same embedding model, same queries.
+On recall@1 the two indexes are 5 points apart on the head slice (0.95 vs 1.00,
+not significant at n=100) and 41 points apart on the tail. That difference is
+the truncation bug, isolated — same corpus, same embedding model, same queries.
 
 **Truncation did not make tail content unfindable.** News articles are
 topically coherent, so the head vector still retrieves the article by subject.
@@ -100,12 +100,16 @@ only 47% of the time.
 | — caught by the relevance floor (no LLM call) | 16 |
 | — caught by the LLM after reading evidence | 4 |
 | FEVER: claims seen | 200 |
-| FEVER: abstention rate | 0.975 |
+| FEVER: abstention rate | 0.980 |
 | **FEVER: confidently-wrong verdicts (≥70%)** | **0** |
 
+*Run on `openai/gpt-oss-120b` (2026-11-14). An earlier run on
+`llama-3.3-70b-versatile`, before Groq retired it, gave the same 20/20, the same
+16 / 4 split and the same zero false-confidence count.*
+
 FEVER's gold evidence is Wikipedia, which this corpus does not contain, so a
-high abstention rate there is *correct behaviour*, not a failure. Of the 5
-claims it did commit to, all 5 were right — but n=5 carries no statistical
+high abstention rate there is *correct behaviour*, not a failure. Of the 4
+claims it did commit to, all 4 were right — but n=4 carries no statistical
 weight and shouldn't be read as an accuracy figure. The meaningful numbers on
 that set are the abstention rate and the zero false-confidence count, both
 computed over all 200.
@@ -542,7 +546,7 @@ Four models run locally on CPU (~1 GB, ~10s cold start).
 |---|---|---|
 | `all-MiniLM-L6-v2` | embeddings | HuggingFace, downloaded automatically |
 | `ms-marco-MiniLM-L-6-v2` | cross-encoder reranker | HuggingFace, automatic |
-| **claim detector** | BERT fine-tuned on 280k FEVER examples | not in this repo |
+| **claim detector** | BERT fine-tuned on 280k examples (FEVER claims vs. synthetic non-claims) | not in this repo |
 | **stance detector** | BERT fine-tuned on 208k FEVER-NLI pairs | not in this repo |
 
 The two fine-tuned models total **831 MB** and are gitignored. Place them at
@@ -702,16 +706,19 @@ written and tested, but has not been run against live feeds — see
 
 **The corpus is the wrong shape for general fact-checking.** 1,687 RSS articles,
 heavily tech and entertainment. It cannot answer questions about history,
-science, or anything outside its window — which is why 97.5% of FEVER claims
+science, or anything outside its window — which is why 98% of FEVER claims
 abstain. Web search fallback covers more than it should have to. A Wikipedia
 tier would fix it.
 
-**`verdict_accuracy` is measured on a small sample.** Only 5 of 200 FEVER claims
+**`verdict_accuracy` is measured on a small sample.** Only 4 of 200 FEVER claims
 were answerable from this corpus. Read the abstention and false-confidence
 numbers instead; those are over the full 200.
 
-**The claim detector is narrower than its name.** It reports 1.00 test accuracy,
-which is a warning sign rather than a triumph: probed by hand it separates
+**The claim detector is narrower than its name, and its 1.00 test accuracy is
+leakage.** Every negative training example is synthetic: 140,356 rows drawn from
+only 106 template strings ("How does healthcare work?", "I think conditions
+vary"). Every test negative appears verbatim in the training set, so the score
+measures memorised templates. Probed by hand on real input it separates
 declarative sentences from questions and opinions, and rates gibberish as a
 claim at 0.997. It is a cheap filter that keeps questions out of the retrieval
 path, and it is used for nothing else.

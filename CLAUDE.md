@@ -190,9 +190,13 @@ approximate, so the third decimal is noise. The measured effect (0.47 → 0.88) 
 ```
 adversarial   abstain_precision 1.000 (20/20)  — 16 via floor, 4 via LLM
               1.000 in every category, including all 8 near_miss
-FEVER 200     abstain_rate 0.975 (195/200)     answered 5
-              verdict_accuracy 1.000 (5/5)     false_confidence 0
+FEVER 200     abstain_rate 0.980 (196/200)     answered 4
+              verdict_accuracy 1.000 (4/4)     false_confidence 0
 ```
+
+**Re-run 2026-11-14 on `openai/gpt-oss-120b`** (numbers above). The original
+run was on `llama-3.3-70b-versatile`, an hour before Groq retired it: same
+20/20, same 16/4 split, FEVER 195 abstained / 5 answered, 0 false confidence.
 
 ### ⚠ How to state these numbers honestly
 
@@ -636,7 +640,7 @@ venv/Scripts/python.exe -m eval_harness.run_eval --system --skip-fever  # ~3m
 venv/Scripts/python.exe -m eval_harness.report --write        # -> results/RESULTS.md
 
 # M6
-venv/Scripts/python.exe -m pytest                    # 36 tests, ~7s, no API calls
+venv/Scripts/python.exe -m pytest                    # 68 tests, ~7s, no API calls
 venv/Scripts/python.exe -m demo.run_demo             # the demo
 venv/Scripts/python.exe -m demo.run_demo --list      # what runs vs skips
 
@@ -843,7 +847,16 @@ cache**, then leave it alone.
   The cross-encoder was only in the C: cache and failed to load offline;
   copied it to `D:\hf-cache\hub`. Note `D:\hf-cache\hub\models--BAAI--bge-reranker-base`
   is entirely **zero-byte files** (aborted download) — do not switch to it.
-- **The claim detector's 1.00 accuracy is not what it looks like.** It separates
+- **The claim detector's 1.00 accuracy is train/test LEAKAGE** (found
+  2026-11-14). All 140,356 negatives in `claim_detection_train.csv` are
+  `source == "synthetic"` — only **106 distinct strings** — and 100% of test
+  negatives appear verbatim in train. Never quote 1.00; README, gate.py and
+  push_to_hub.py's model card all say so now.
+- **The HF cache at `D:\hf-cache` was wiped on 2026-11-07.** MiniLM and the
+  cross-encoder were copied back from `C:\Users\user\.cache\huggingface\hub`.
+  Symptom: `OSError: We couldn't connect to 'https://huggingface.co'` in
+  tests — the app runs offline, so a missing model reads as a network error.
+- **The claim detector separates declaratives from questions on real input.** It separates
   declarative sentences from questions/opinions; it does not judge verifiability.
   `"asdkjh askjdh"` scores 0.997 as a claim. Fine for the gate's actual job
   (keep questions out), but **do not claim "claim detection" on the resume

@@ -174,7 +174,8 @@ def run_retrieval(skip_baseline: bool = False) -> dict:
         ),
         "note": (
             "The head slice is the control: both indexes embedded that text, "
-            "and they score within 0.01 of each other there. The tail slice is "
+            "and they are 5 points apart there (0.95 vs 1.00 recall@1, not "
+            "significant at n=100) against 41 on the tail. The tail slice is "
             "the truncated region. Truncation did NOT make tail content "
             "unfindable — news articles are topically coherent, so the head "
             "vector still represents the whole article well enough to retrieve "

@@ -30,7 +30,7 @@ The head slice is the control — both indexes embedded that text.
 | New index (chunked) | 0.940 | 0.975 | 0.975 | 0.952 |
 | New index + BM25 + reranker | 0.985 | 0.995 | 0.995 | 0.988 |
 
-> The head slice is the control: both indexes embedded that text, and they score within 0.01 of each other there. The tail slice is the truncated region. Truncation did NOT make tail content unfindable — news articles are topically coherent, so the head vector still represents the whole article well enough to retrieve it by subject. What it destroyed was ranking precision: on tail queries the old index put the correct article first only 47% of the time, against 88% for the same embedder over chunks.
+> The head slice is the control: both indexes embedded that text, and they are 5 points apart there (0.95 vs 1.00 recall@1, not significant at n=100) against 41 on the tail. The tail slice is the truncated region. Truncation did NOT make tail content unfindable — news articles are topically coherent, so the head vector still represents the whole article well enough to retrieve it by subject. What it destroyed was ranking precision: on tail queries the old index put the correct article first only 47% of the time, against 88% for the same embedder over chunks.
 
 > **Run-to-run variance.** This eval was run twice. The old index moved by 0.010 on head recall@1 and 0.005 on MRR between runs; the new index reproduced identically. Chroma's HNSW is an approximate index, so treat single-run figures as carrying roughly ±0.01 — two decimal places are meaningful, the third is not. The effect being measured (0.47 → 0.88 on tail recall@1) is forty times that noise floor.
 
@@ -104,15 +104,15 @@ The second group is the interesting one. Those are claims about subjects the cor
 | Metric | Value |
 |---|---:|
 | claims | 200 |
-| answered | 5 |
-| abstain_rate | 0.975 |
+| answered | 4 |
+| abstain_rate | 0.980 |
 | verdict_accuracy (of answered) | 1.000 |
 | **false_confidence** (wrong at ≥70%) | **0** |
-| mean confidence when correct | 78 |
+| mean confidence when correct | 82.5 |
 
 `false_confidence` counts wrong verdicts issued at high confidence. It is the metric to drive to zero: a confident wrong answer is worse than no answer. It is meaningful here **because** n is large — the system was given 200 opportunities to be confidently wrong and took none of them.
 
-> **Read `verdict_accuracy` with care.** It is computed over the **5 claims the system actually committed to**, not over all 200. At that sample size the figure carries almost no statistical weight and should not be quoted as a headline accuracy number. The meaningful results on this set are the abstention rate and `false_confidence`, both of which are computed over all 200 claims.
+> **Read `verdict_accuracy` with care.** It is computed over the **4 claims the system actually committed to**, not over all 200. At that sample size the figure carries almost no statistical weight and should not be quoted as a headline accuracy number. The meaningful results on this set are the abstention rate and `false_confidence`, both of which are computed over all 200 claims.
 
 ---
 
