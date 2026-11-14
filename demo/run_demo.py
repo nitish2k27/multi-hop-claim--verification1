@@ -261,7 +261,19 @@ def _wrap(text: str, width: int) -> str:
     return textwrap.fill(text, width, subsequent_indent="    ")
 
 
+def _force_utf8_stdio() -> None:
+    """Windows encodes redirected stdout as cp1252, which cannot print the
+    box-drawing rules, arrows or Hindi output — so `run_demo > file` (or a
+    screen recorder capturing the pipe) died on the first scenario title.
+    Same guard as `serve/cli.py`."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def main() -> int:
+    _force_utf8_stdio()
     parser = argparse.ArgumentParser(prog="demo.run_demo", description=__doc__)
     parser.add_argument("--fast", action="store_true",
                         help="skip scenarios that call the LLM")
